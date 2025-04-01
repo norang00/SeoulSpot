@@ -20,11 +20,16 @@ final class CurationCoordinator: Coordinator {
         vc.delegate = self
         navigationController.pushViewController(vc, animated: false)
     }
+    
+    func showDetail(for event: CulturalEvent) {
+        let viewModel = EventDetailViewModel()
+        let detailVC = EventDetailViewController(viewModel: viewModel)
+        navigationController.pushViewController(detailVC, animated: true)
+    }
 }
 
 extension CurationCoordinator: CurationViewControllerDelegate {
-    func didSelectEvent(_ event: Event) {
-//        let detailVC = EventDetailViewController(event: event)
-//        navigationController.pushViewController(detailVC, animated: true)
+    func didSelectEvent(_ event: CulturalEvent) {
+        showDetail(for: event)
     }
 }

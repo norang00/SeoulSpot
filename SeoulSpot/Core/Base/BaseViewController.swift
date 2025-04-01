@@ -31,7 +31,7 @@ class BaseViewController<ViewType: BaseView, ViewModelType: BaseViewModel>: UIVi
     }
 
     func bindViewModel() {
-        // override point
+        fatalError("override 필수")
     }
 
     // MARK: - Life Cycle

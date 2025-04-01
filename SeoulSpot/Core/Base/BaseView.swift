@@ -34,7 +34,6 @@ class BaseView: UIView {
     
     /// 뷰 설정 (배경색, 컴포넌트 추가 등)
     func setupView() {
-        super.backgroundColor = .white
         fatalError("override 필수")
     }
 }

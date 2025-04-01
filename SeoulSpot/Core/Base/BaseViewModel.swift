@@ -12,7 +12,6 @@ class BaseViewModel {
     @Published var isLoading: Bool = false
     
     let errorMessage = PassthroughSubject<String, Never>()
-    
     var cancellables = Set<AnyCancellable>()
     
     deinit {

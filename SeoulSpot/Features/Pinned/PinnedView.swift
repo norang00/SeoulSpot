@@ -26,7 +26,6 @@ final class PinnedView: BaseView {
     }
 
     override func setupView() {
-        super.setupView()
         print(#function)
     }
 }

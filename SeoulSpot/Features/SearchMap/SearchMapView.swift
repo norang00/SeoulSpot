@@ -26,7 +26,6 @@ class SearchMapView: BaseView {
     }
 
     override func setupView() {
-        super.setupView()
         print(#function)
     }
 }

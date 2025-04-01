@@ -7,13 +7,7 @@
 
 import UIKit
 
-protocol EventDetailViewControllerDelegate: AnyObject {
-    func didSelectEvent(_ event: Event)
-}
-
 final class EventDetailViewController: BaseViewController<EventDetailView, EventDetailViewModel> {
-
-    weak var delegate: EventDetailViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

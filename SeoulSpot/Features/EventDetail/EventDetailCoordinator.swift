@@ -17,14 +17,6 @@ final class EventDetailCoordinator: Coordinator {
     func start() {
         let viewModel = EventDetailViewModel()
         let vc = EventDetailViewController(viewModel: viewModel)
-        vc.delegate = self
         navigationController.pushViewController(vc, animated: false)
-    }
-}
-
-extension EventDetailCoordinator: EventDetailViewControllerDelegate {
-    func didSelectEvent(_ event: Event) {
-//        let detailVC = EventDetailViewController(event: event)
-//        navigationController.pushViewController(detailVC, animated: true)
     }
 }
