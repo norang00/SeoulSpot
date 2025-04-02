@@ -11,7 +11,8 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        print(#function)
+        
     }
 
     override func bindViewModel() {

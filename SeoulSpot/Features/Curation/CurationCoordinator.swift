@@ -12,17 +12,22 @@ final class CurationCoordinator: Coordinator {
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+
+        print("CurationCoordinator", #function)
     }
 
     func start() {
         let viewModel = CurationViewModel()
-        let vc = CurationViewController(viewModel: viewModel)
-        vc.delegate = self
-        navigationController.pushViewController(vc, animated: false)
+        let curationVC = CurationViewController(viewModel: viewModel)
+        curationVC.delegate = self
+        navigationController.pushViewController(curationVC, animated: false)
+
+        print("CurationCoordinator", #function, curationVC.delegate)
     }
     
     func showDetail(for event: CulturalEvent) {
-        let viewModel = EventDetailViewModel()
+        print(#function)
+        let viewModel = EventDetailViewModel(event: event)
         let detailVC = EventDetailViewController(viewModel: viewModel)
         navigationController.pushViewController(detailVC, animated: true)
     }
@@ -30,6 +35,7 @@ final class CurationCoordinator: Coordinator {
 
 extension CurationCoordinator: CurationViewControllerDelegate {
     func didSelectEvent(_ event: CulturalEvent) {
+        print(#function, event.title)
         showDetail(for: event)
     }
 }

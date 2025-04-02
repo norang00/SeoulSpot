@@ -13,11 +13,13 @@ protocol CurationViewControllerDelegate: AnyObject {
 
 final class CurationViewController: BaseViewController<CurationView, CurationViewModel> {
     
-    weak var delegate: CurationViewControllerDelegate?
+    var delegate: CurationViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = Resources.curation.title
+
+        print(#function, delegate)
 
         setupCollectionView()
     }
@@ -80,14 +82,12 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
         case mainView.mainCollectionView:
             let mainCell = collectionView.dequeueReusableCell(withReuseIdentifier: MainCollectionViewCell.identifier, for: indexPath) as! MainCollectionViewCell
             event = viewModel.mainItems[indexPath.item]
-            print("Main",event)
             mainCell.configure(with: event)
             cell = mainCell
 
         case mainView.subCollectionView:
             let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SubCollectionViewCell.identifier, for: indexPath) as! SubCollectionViewCell
             event = viewModel.subItems[indexPath.item]
-            print("Sub",event)
            subCell.configure(with: event)
             cell = subCell
             
@@ -109,6 +109,8 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
         default:
             return
         }
+        print(#function, selectedEvent.title, delegate)
+        print("🔥 delegate 연결 상태:", delegate != nil)
 
         delegate?.didSelectEvent(selectedEvent)
     }

@@ -59,8 +59,6 @@ final class NetworkManager {
         }
         
 
-        print(#function, request)
-
         // URLSession 요청 실행
         URLSession.shared.dataTask(with: request) { data, response, error in
             // 네트워크 오류 처리

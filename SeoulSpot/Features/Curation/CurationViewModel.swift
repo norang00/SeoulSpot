@@ -24,6 +24,7 @@ final class CurationViewModel: BaseViewModel {
         let option = CulturalEventRequestOption(startIndex: 1, endIndex: 100)
         let request = NetworkRequest.culturalEvents(option: option)
         
+        //[TODO] Collection 별로 별도 쿼리 보내기
         NetworkManager.shared.callRequestToAPIServer(request, CulturalEventResponse.self) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
