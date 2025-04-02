@@ -8,85 +8,106 @@
 import UIKit
 
 final class EventDetailView: BaseView {
-    
-    let scrollView = UIScrollView()
-    let contentView = UIView()
-    
+
     let posterImageView = UIImageView()
+    let pinButton = UIButton(type: .system)
     let titleLabel = UILabel()
     let subtitleLabel = UILabel() // 기관명, 지역
-    let dateLabel = UILabel()
-    let placeLabel = UILabel()
-    let targetLabel = UILabel()
-    let feeLabel = UILabel()
-    let categoryLabel = UILabel()
+
+//    let dateLabel = UILabel()
+//    let placeLabel = UILabel()
+//    let targetLabel = UILabel()
+//    let feeLabel = UILabel()
+//    let categoryLabel = UILabel()
+
+    private let infoStackView = UIStackView()
+
+    private let dateTitleLabel = UILabel()
+    private let dateValueLabel = UILabel()
+
+    private let placeTitleLabel = UILabel()
+    private let placeValueLabel = UILabel()
+
+    private let targetTitleLabel = UILabel()
+    private let targetValueLabel = UILabel()
+
+    private let feeTitleLabel = UILabel()
+    private let feeValueLabel = UILabel()
+
+    private let categoryTitleLabel = UILabel()
+    private let categoryValueLabel = UILabel()
+    
     let linkButton = UIButton(type: .system)
-
+    
+    let emptyView = UIView()
+    
     override func setupHierarchy() {
-        addSubview(scrollView)
-        scrollView.addSubview(contentView)
         
-        [posterImageView, titleLabel, subtitleLabel, dateLabel, placeLabel, targetLabel, feeLabel, categoryLabel, linkButton].forEach {
-            contentView.addSubview($0)
+        [posterImageView, pinButton,
+         titleLabel, subtitleLabel,
+         linkButton, emptyView].forEach {
+            addSubview($0)
         }
+        
+        let dateRow = UIStackView(arrangedSubviews: [dateTitleLabel, dateValueLabel])
+        let placeRow = UIStackView(arrangedSubviews: [placeTitleLabel, placeValueLabel])
+        let targetRow = UIStackView(arrangedSubviews: [targetTitleLabel, targetValueLabel])
+        let feeRow = UIStackView(arrangedSubviews: [feeTitleLabel, feeValueLabel])
+        let categoryRow = UIStackView(arrangedSubviews: [categoryTitleLabel, categoryValueLabel])
+        
+        [dateRow, placeRow, targetRow, feeRow, categoryRow].forEach {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.distribution = .fillProportionally
+            infoStackView.addArrangedSubview($0)
+        }
+        
+        infoStackView.axis = .vertical
+        infoStackView.spacing = 12
+        
+        addSubview(infoStackView)
     }
-
+    
     override func setupLayout() {
-        scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        contentView.snp.makeConstraints {
-            $0.edges.equalToSuperview()      // scrollView의 content 영역
-            $0.width.equalToSuperview()     // 가로 스크롤 방지
-        }
-        
         posterImageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(240)
-            $0.height.equalTo(320)
+            $0.top.equalToSuperview()
+            $0.horizontalEdges.equalTo(safeAreaLayoutGuide)
+            $0.height.equalTo(520)
         }
-
+        
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(posterImageView.snp.bottom).offset(16)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.leading.equalTo(safeAreaLayoutGuide).inset(20)
+            $0.width.equalTo(320)
+        }
+
+        pinButton.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
+            $0.leading.equalTo(titleLabel.snp.trailing).offset(10)
+            $0.trailing.equalTo(safeAreaLayoutGuide).inset(10)
+            $0.height.equalTo(titleLabel)
         }
 
         subtitleLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalTo(titleLabel)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(20)
         }
-
-        dateLabel.snp.makeConstraints {
-            $0.top.equalTo(subtitleLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalTo(titleLabel)
-        }
-
-        placeLabel.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalTo(titleLabel)
-        }
-
-        targetLabel.snp.makeConstraints {
-            $0.top.equalTo(placeLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalTo(titleLabel)
-        }
-
-        feeLabel.snp.makeConstraints {
-            $0.top.equalTo(targetLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalTo(titleLabel)
-        }
-
-        categoryLabel.snp.makeConstraints {
-            $0.top.equalTo(feeLabel.snp.bottom).offset(12)
-            $0.leading.trailing.equalTo(titleLabel)
+        
+        infoStackView.snp.makeConstraints {
+            $0.top.equalTo(subtitleLabel.snp.bottom).offset(10)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(20)
         }
 
         linkButton.snp.makeConstraints {
-            $0.top.equalTo(categoryLabel.snp.bottom).offset(20)
-            $0.centerX.equalToSuperview()
-            $0.bottom.equalToSuperview().inset(40)
+            $0.top.equalTo(infoStackView.snp.bottom).offset(10)
+            $0.centerX.equalTo(safeAreaLayoutGuide)
+        }
+        
+        emptyView.snp.makeConstraints {
+            $0.top.equalTo(linkButton.snp.bottom)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.height.greaterThanOrEqualTo(8)
+            $0.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
 
@@ -95,33 +116,54 @@ final class EventDetailView: BaseView {
 
         posterImageView.contentMode = .scaleAspectFill
         posterImageView.clipsToBounds = true
-        posterImageView.layer.cornerRadius = 12
 
         titleLabel.font = .pretendardBold(ofSize: 20)
-        titleLabel.numberOfLines = 0
+        titleLabel.numberOfLines = 2
+        titleLabel.adjustsFontSizeToFitWidth = true
 
-        [subtitleLabel, dateLabel, placeLabel, targetLabel, feeLabel, categoryLabel].forEach {
+        [subtitleLabel].forEach {
             $0.font = .pretendardRegular(ofSize: 14)
             $0.numberOfLines = 0
         }
+        
+        [dateTitleLabel, placeTitleLabel, targetTitleLabel, feeTitleLabel, categoryTitleLabel].forEach {
+            $0.textColor = .secondaryLabel
+            $0.font = .pretendardMedium(ofSize: 14)
+            $0.setContentHuggingPriority(.required, for: .horizontal)
+            $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+            $0.snp.makeConstraints { $0.width.equalTo(60) } // ✅ 너비 고정 (예: 60pt)
+        }
 
-        linkButton.setTitle("공식 페이지 바로가기", for: .normal)
+        [dateValueLabel, placeValueLabel, targetValueLabel, feeValueLabel, categoryValueLabel].forEach {
+            $0.font = .pretendardRegular(ofSize: 14)
+            $0.textColor = .label
+        }
+
+        dateTitleLabel.text = "기간"
+        placeTitleLabel.text = "장소"
+        targetTitleLabel.text = "대상"
+        feeTitleLabel.text = "요금"
+        categoryTitleLabel.text = "카테고리"
+        linkButton.setTitle("공식 홈페이지 바로가기", for: .normal)
     }
 
     func configure(with event: CulturalEvent) {
+        pinButton.setImage(UIImage(systemName: "pin"), for: .normal)
+        pinButton.tintColor = .systemOrange
+        
         titleLabel.text = event.title
         subtitleLabel.text = "\(event.orgName) · \(event.guName)"
-        dateLabel.text = "기간: \(event.date)"
-        placeLabel.text = "장소: \(event.place)"
-        targetLabel.text = "대상: \(event.useTarget ?? "누구나")"
-        feeLabel.text = "요금: \(event.useFee ?? "-")"
-        categoryLabel.text = "카테고리: \(event.codeName)"
-
+        dateValueLabel.text = event.date
+        placeValueLabel.text = event.place
+        targetValueLabel.text = event.useTarget ?? "누구나"
+        feeValueLabel.text = ((event.useFee?.isEmpty) != nil) ? "-" : event.useFee
+        categoryValueLabel.text = event.codeName
+        
         if let url = URL(string: event.mainImage ?? "") {
             posterImageView.loadImage(from: url)
         }
 
-        if let link = event.orgLink, let url = URL(string: link) {
+        if let link = event.orgLink, let url = URL(string: link) { // [TODO] WebView 로 전환
             linkButton.addAction(UIAction(handler: { _ in
                 UIApplication.shared.open(url)
             }), for: .touchUpInside)

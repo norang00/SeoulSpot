@@ -15,9 +15,9 @@ final class MainCollectionViewCell: UICollectionViewCell {
     static var identifier = String(describing: MainCollectionViewCell.self)
 
     private let imageView = UIImageView()
-    private let categoryBadge = BadgeLabel(style: .category)
+    private let categoryBadge = BadgeLabel(style: .theme)
     private let locationBadge = BadgeLabel(style: .location)
-    private let isFreeBadge = BadgeLabel(style: .free)
+    private let isFreeBadge = BadgeLabel(style: .isFree)
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -62,7 +62,7 @@ final class MainCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupView() {
-        imageView.layer.cornerRadius = 10 // subcell 이랑 똑같이 설정했는데 왜 적용이 안될까 뱃지 여백도 상단이 짤려있는걸로 봐서는 radius 적용 뱃지적용 다 된 후에 fill 로 맞추느라
+        imageView.layer.cornerRadius = 10
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
     }

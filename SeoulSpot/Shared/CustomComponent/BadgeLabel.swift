@@ -11,16 +11,14 @@ final class BadgeLabel: UILabel {
 
 enum BadgeStyle {
     case location
-    case category
-    case free
-    case paid
+    case theme
+    case isFree
 
     var backgroundColor: UIColor {
         switch self {
-        case .location: return .orange
-        case .category: return .systemBlue
-        case .free: return .systemGreen
-        case .paid: return .systemRed
+        case .location: return .locationBadge
+        case .theme: return .themeBadge
+        case .isFree: return .isFreeBadge
         }
     }
 

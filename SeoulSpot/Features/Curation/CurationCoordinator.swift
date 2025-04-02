@@ -17,18 +17,16 @@ final class CurationCoordinator: Coordinator {
     }
 
     func start() {
-        let viewModel = CurationViewModel()
-        let curationVC = CurationViewController(viewModel: viewModel)
+        let curationVM = CurationViewModel()
+        let curationVC = CurationViewController(viewModel: curationVM)
         curationVC.delegate = self
         navigationController.pushViewController(curationVC, animated: false)
-
-        print("CurationCoordinator", #function, curationVC.delegate)
     }
     
     func showDetail(for event: CulturalEvent) {
-        print(#function)
-        let viewModel = EventDetailViewModel(event: event)
-        let detailVC = EventDetailViewController(viewModel: viewModel)
+        let detailVM = EventDetailViewModel(event: event)
+        let detailVC = EventDetailViewController(viewModel: detailVM)
+        navigationController.topViewController?.navigationItem.backButtonTitle = ""
         navigationController.pushViewController(detailVC, animated: true)
     }
 }

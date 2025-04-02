@@ -13,14 +13,12 @@ protocol CurationViewControllerDelegate: AnyObject {
 
 final class CurationViewController: BaseViewController<CurationView, CurationViewModel> {
     
-    var delegate: CurationViewControllerDelegate?
-
+    var delegate: CurationViewControllerDelegate? // [TODO] Deinit 되는지 확인
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = Resources.curation.title
-
-        print(#function, delegate)
-
+//        title = Resources.curation.title // [TODO] 로고 추가 예정
+        
         setupCollectionView()
     }
     
@@ -109,9 +107,7 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
         default:
             return
         }
-        print(#function, selectedEvent.title, delegate)
-        print("🔥 delegate 연결 상태:", delegate != nil)
-
+        
         delegate?.didSelectEvent(selectedEvent)
     }
     

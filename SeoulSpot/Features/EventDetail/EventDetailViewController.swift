@@ -8,11 +8,12 @@
 import UIKit
 
 final class EventDetailViewController: BaseViewController<EventDetailView, EventDetailViewModel> {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(#function)
+        print("EventDetailViewController", #function)
         
+        mainView.configure(with: viewModel.event)
     }
 
     override func bindViewModel() {

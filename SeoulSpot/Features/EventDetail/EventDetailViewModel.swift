@@ -8,9 +8,11 @@
 import Foundation
 
 final class EventDetailViewModel: BaseViewModel {
+    
     let event: CulturalEvent
 
     init(event: CulturalEvent) {
         self.event = event
+        super.init()
     }
 }
