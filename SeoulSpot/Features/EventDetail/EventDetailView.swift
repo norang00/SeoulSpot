@@ -12,13 +12,7 @@ final class EventDetailView: BaseView {
     let posterImageView = UIImageView()
     let pinButton = UIButton(type: .system)
     let titleLabel = UILabel()
-    let subtitleLabel = UILabel() // 기관명, 지역
-
-//    let dateLabel = UILabel()
-//    let placeLabel = UILabel()
-//    let targetLabel = UILabel()
-//    let feeLabel = UILabel()
-//    let categoryLabel = UILabel()
+    let subtitleLabel = UILabel()
 
     private let infoStackView = UIStackView()
 

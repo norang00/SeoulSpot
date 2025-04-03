@@ -1,5 +1,5 @@
 //
-//  MainCollectionViewCell.swift
+//  LargeImageCollectionViewCell.swift
 //  SeoulSpot
 //
 //  Created by Kyuhee hong on 3/31/25.
@@ -10,9 +10,9 @@ import SnapKit
 /* [TODO]
  - 그림자 효과
  */
-final class MainCollectionViewCell: UICollectionViewCell {
+final class LargeImageCollectionViewCell: UICollectionViewCell {
     
-    static var identifier = String(describing: MainCollectionViewCell.self)
+    static var identifier = String(describing: LargeImageCollectionViewCell.self)
 
     private let imageView = UIImageView()
     private let categoryBadge = BadgeLabel(style: .theme)
@@ -40,9 +40,11 @@ final class MainCollectionViewCell: UICollectionViewCell {
     
     private func setupLayout() {
         imageView.snp.makeConstraints {
-            $0.edges.equalTo(contentView)
+            $0.top.equalTo(contentView).inset(50)
+            $0.horizontalEdges.equalTo(contentView).inset(10)
+            $0.bottom.equalTo(contentView).inset(10)
         }
-        
+
         categoryBadge.snp.makeConstraints {
             $0.top.leading.equalTo(contentView).inset(10)
             $0.height.equalTo(30)
@@ -62,6 +64,8 @@ final class MainCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupView() {
+        contentView.backgroundColor = .bgGray
+        contentView.layer.cornerRadius = 10
         imageView.layer.cornerRadius = 10
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true

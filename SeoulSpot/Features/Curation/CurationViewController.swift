@@ -17,8 +17,7 @@ final class CurationViewController: BaseViewController<CurationView, CurationVie
  
     override func viewDidLoad() {
         super.viewDidLoad()
-//        title = Resources.curation.title // [TODO] 로고 추가 예정
-        
+        setupNavigationView()
         setupCollectionView()
     }
     
@@ -49,16 +48,35 @@ final class CurationViewController: BaseViewController<CurationView, CurationVie
     }
 }
 
+extension CurationViewController {
+    private func setupNavigationView() {
+        let logoImageView = UIImageView(image: UIImage(named: "logoname2"))
+        logoImageView.contentMode = .scaleAspectFit
+
+        let containerView = UIView()
+        containerView.addSubview(logoImageView)
+
+        logoImageView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.height.equalTo(32)
+            $0.width.equalTo(120)
+        }
+        
+        self.navigationItem.titleView = containerView
+    }
+}
+
 extension CurationViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
 
-    func setupCollectionView() {
+    private func setupCollectionView() {
+        mainView.mainCollectionView.isPagingEnabled = true
         mainView.mainCollectionView.delegate = self
         mainView.mainCollectionView.dataSource = self
-        mainView.mainCollectionView.register(MainCollectionViewCell.self, forCellWithReuseIdentifier: MainCollectionViewCell.identifier)
+        mainView.mainCollectionView.register(LargeImageCollectionViewCell.self, forCellWithReuseIdentifier: LargeImageCollectionViewCell.identifier)
 
         mainView.subCollectionView.delegate = self
         mainView.subCollectionView.dataSource = self
-        mainView.subCollectionView.register(SubCollectionViewCell.self, forCellWithReuseIdentifier: SubCollectionViewCell.identifier)
+        mainView.subCollectionView.register(SmallImageCollectionViewCell.self, forCellWithReuseIdentifier: SmallImageCollectionViewCell.identifier)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -78,13 +96,13 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
 
         switch collectionView {
         case mainView.mainCollectionView:
-            let mainCell = collectionView.dequeueReusableCell(withReuseIdentifier: MainCollectionViewCell.identifier, for: indexPath) as! MainCollectionViewCell
+            let mainCell = collectionView.dequeueReusableCell(withReuseIdentifier: LargeImageCollectionViewCell.identifier, for: indexPath) as! LargeImageCollectionViewCell
             event = viewModel.mainItems[indexPath.item]
             mainCell.configure(with: event)
             cell = mainCell
 
         case mainView.subCollectionView:
-            let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SubCollectionViewCell.identifier, for: indexPath) as! SubCollectionViewCell
+            let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallImageCollectionViewCell.identifier, for: indexPath) as! SmallImageCollectionViewCell
             event = viewModel.subItems[indexPath.item]
            subCell.configure(with: event)
             cell = subCell

@@ -14,17 +14,17 @@ enum Resources: CaseIterable {
 
     var title: String {
         switch self {
-        case .curation: return "큐레이션"
-        case .searchMap: return "지도에서 보기"
-        case .pinned: return "저장한 이벤트"
+        case .curation: return ""
+        case .searchMap: return ""
+        case .pinned: return ""
         }
     }
 
     var icon: UIImage? {
         switch self {
         case .curation: return UIImage(systemName: "sparkles")
-        case .searchMap: return UIImage(systemName: "map")
-        case .pinned: return UIImage(systemName: "star.fill")
+        case .searchMap: return UIImage(systemName: "mappin.and.ellipse")
+        case .pinned: return UIImage(systemName: "pin")
         }
     }
 }

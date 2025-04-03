@@ -18,6 +18,22 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let bottomSheetVC = SearchMapBottomSheetViewController()
+
+        addChild(bottomSheetVC)
+        view.addSubview(bottomSheetVC.view)
+        bottomSheetVC.didMove(toParent: self)
+
+        bottomSheetVC.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bottomSheetVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSheetVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSheetVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSheetVC.view.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        
+
     }
 
     override func bindViewModel() {

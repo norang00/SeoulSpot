@@ -44,6 +44,8 @@ class BaseViewController<ViewType: BaseView, ViewModelType: BaseViewModel>: UIVi
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        keyboardDismissOnTap()
+        
         bindViewModel()
     }
 

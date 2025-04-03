@@ -39,21 +39,19 @@ enum NetworkRequest {
     var endpoint: URL {
         switch self {
         case .culturalEvents(let option):
-            let path = "\(datasetPath)/\(option.startIndex)/\(option.endIndex)"
-            var components = URLComponents(string: baseURL + path)!
+            
+            func safeComponent(_ input: String?) -> String {
+                guard let input = input, !input.isEmpty else { return "%20" }
+                let trimmed = input.components(separatedBy: "/").first ?? input
+                return trimmed.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "%20"
+            }
 
-            var queryItems: [URLQueryItem] = []
-            if let codeName = option.codeName {
-                queryItems.append(URLQueryItem(name: "CODENAME", value: codeName))
-            }
-            if let guName = option.guName {
-                queryItems.append(URLQueryItem(name: "GUNAME", value: guName))
-            }
-            if let title = option.title {
-                queryItems.append(URLQueryItem(name: "TITLE", value: title))
-            }
-            components.queryItems = queryItems.isEmpty ? nil : queryItems
-            return components.url!
+            let codeName = safeComponent(option.codeName)
+            let guName = safeComponent(option.guName)
+            let title = safeComponent(option.title)
+            let path = "\(datasetPath)/\(option.startIndex)/\(option.endIndex)/\(codeName)/\(guName)/\(title)"
+            let fullURLString = baseURL + path
+            return URL(string: fullURLString)!
         }
     }
 

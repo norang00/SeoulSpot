@@ -29,6 +29,8 @@ final class CurationViewModel: BaseViewModel {
             DispatchQueue.main.async {
                 self?.isLoading = false
 
+                print(#function, request.endpoint.absoluteURL)
+                
                 switch result {
                 case .success(let response):
                     guard response.culturalEventInfo.RESULT?.CODE == "INFO-000" else {
@@ -59,6 +61,9 @@ final class CurationViewModel: BaseViewModel {
 
         NetworkManager.shared.callRequestToAPIServer(request, CulturalEventResponse.self) { [weak self] result in
             DispatchQueue.main.async {
+                
+                print(#function, request.endpoint.absoluteURL)
+
                 switch result {
                 case .success(let response):
                     guard response.culturalEventInfo.RESULT?.CODE == "INFO-000" else {

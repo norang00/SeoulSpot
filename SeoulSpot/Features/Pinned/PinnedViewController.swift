@@ -17,7 +17,8 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        setupTableView()
     }
 
     override func bindViewModel() {
@@ -31,4 +32,23 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
             .sink { [weak self] in self?.showError($0) }
             .store(in: &cancellables)
     }
+}
+
+extension PinnedViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    private func setupTableView() {
+        mainView.tableView.delegate = self
+        mainView.tableView.dataSource = self
+        mainView.tableView.register(BasicInfoTableViewCell.self, forCellReuseIdentifier: BasicInfoTableViewCell.identifier)
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        10
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: BasicInfoTableViewCell.identifier, for: indexPath) as! BasicInfoTableViewCell
+        return cell
+    }
+    
 }

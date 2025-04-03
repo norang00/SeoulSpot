@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EE15ACB42D9A770100D2A1B9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = EE15ACB32D9A770100D2A1B9 /* .gitignore */; };
 		EE15ACFD2D9AB73B00D2A1B9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = EE15ACFC2D9AB73B00D2A1B9 /* SnapKit */; };
+		EE99721D2D9D0F940082C0DB /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = EE99721C2D9D0F940082C0DB /* NMapsMap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE15ACFD2D9AB73B00D2A1B9 /* SnapKit in Frameworks */,
+				EE99721D2D9D0F940082C0DB /* NMapsMap in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 			name = SeoulSpot;
 			packageProductDependencies = (
 				EE15ACFC2D9AB73B00D2A1B9 /* SnapKit */,
+				EE99721C2D9D0F940082C0DB /* NMapsMap */,
 			);
 			productName = SeoulSpot;
 			productReference = EE15AC162D9A745100D2A1B9 /* SeoulSpot.app */;
@@ -118,6 +121,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				EE15ACFB2D9AB73B00D2A1B9 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				EE99721B2D9D0F940082C0DB /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EE15AC172D9A745100D2A1B9 /* Products */;
@@ -165,7 +169,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -197,7 +201,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -366,6 +370,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		EE99721B2D9D0F940082C0DB /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/navermaps/SPM-NMapsMap";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.21.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -373,6 +385,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EE15ACFB2D9AB73B00D2A1B9 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		EE99721C2D9D0F940082C0DB /* NMapsMap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE99721B2D9D0F940082C0DB /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
+			productName = NMapsMap;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,5 +1,5 @@
 //
-//  SubCollectionViewCell.swift
+//  SmallImageCollectionViewCell.swift
 //  SeoulSpot
 //
 //  Created by Kyuhee hong on 3/31/25.
@@ -8,9 +8,9 @@
 import UIKit
 import SnapKit
 
-final class SubCollectionViewCell: UICollectionViewCell {
+final class SmallImageCollectionViewCell: UICollectionViewCell {
     
-    static var identifier = String(describing: SubCollectionViewCell.self)
+    static var identifier = String(describing: SmallImageCollectionViewCell.self)
     
     let imageView = UIImageView()
 
