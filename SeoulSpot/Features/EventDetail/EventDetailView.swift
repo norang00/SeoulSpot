@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import CoreData
 
 final class EventDetailView: BaseView {
 
@@ -17,6 +18,8 @@ final class EventDetailView: BaseView {
     private var posterImageViewHeightConstraint: Constraint?
     
     private let pinButton = UIButton(type: .system)
+    var onPinTapped: (() -> Void)?
+
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
 
@@ -38,17 +41,14 @@ final class EventDetailView: BaseView {
     private let categoryValueLabel = UILabel()
     
     private let linkButton = UIButton(type: .system)
-    
-    private let emptyView = UIView()
-    
+        
     override func setupHierarchy() {
         
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         
         [posterImageView, pinButton,
-         titleLabel, subtitleLabel,
-         linkButton, emptyView].forEach {
+         titleLabel, subtitleLabel, linkButton].forEach {
             contentView.addSubview($0)
         }
         
@@ -74,7 +74,7 @@ final class EventDetailView: BaseView {
     override func setupLayout() {
         
         scrollView.snp.makeConstraints {
-            $0.edges.equalTo(safeAreaLayoutGuide)
+            $0.edges.equalToSuperview()
         }
 
         contentView.snp.makeConstraints {
@@ -86,9 +86,6 @@ final class EventDetailView: BaseView {
             $0.top.equalTo(contentView)
             $0.horizontalEdges.equalTo(contentView)
             self.posterImageViewHeightConstraint = $0.height.equalTo(100).constraint
-
-//            $0.height.equalTo(520)
-//            $0.height.greaterThanOrEqualTo(200)
         }
         
         titleLabel.snp.makeConstraints {
@@ -119,25 +116,20 @@ final class EventDetailView: BaseView {
             $0.centerX.equalTo(contentView)
             $0.bottom.equalTo(contentView)
         }
-        
-//        emptyView.snp.makeConstraints {
-//            $0.top.equalTo(linkButton.snp.bottom)
-//            $0.leading.trailing.equalTo(contentView)
-//            $0.height.greaterThanOrEqualTo(8)
-//            $0.bottom.equalTo(contentView)
-//        }
     }
 
     override func setupView() {
         backgroundColor = .white
 
         posterImageView.contentMode = .scaleAspectFit
-//        posterImageView.contentMode = .scaleAspectFill
-//        posterImageView.clipsToBounds = true
 
         titleLabel.font = .pretendardBold(ofSize: 20)
         titleLabel.numberOfLines = 2
         titleLabel.adjustsFontSizeToFitWidth = true
+        
+        pinButton.setImage(UIImage(systemName: "pin"), for: .normal)
+        pinButton.tintColor = .systemOrange
+        pinButton.addTarget(self, action: #selector(pinTapped), for: .touchUpInside)
 
         [subtitleLabel].forEach {
             $0.font = .pretendardRegular(ofSize: 14)
@@ -166,9 +158,6 @@ final class EventDetailView: BaseView {
     }
 
     func configure(with event: CulturalEvent) {
-        pinButton.setImage(UIImage(systemName: "pin"), for: .normal)
-        pinButton.tintColor = .systemOrange
-        
         titleLabel.text = event.title
         subtitleLabel.text = "\(event.orgName) · \(event.guName)"
         dateValueLabel.text = event.date
@@ -185,8 +174,6 @@ final class EventDetailView: BaseView {
                 let aspectRatio = image.size.height / image.size.width
                 let newHeight = width * aspectRatio
                 
-                print(aspectRatio, newHeight)
-                
                 self.posterImageViewHeightConstraint?.update(offset: newHeight)
                 self.layoutIfNeeded()
             }
@@ -199,5 +186,15 @@ final class EventDetailView: BaseView {
         } else {
             linkButton.isHidden = true
         }
+    }
+
+    @objc private func pinTapped() {
+        print(#function)
+        onPinTapped?()
+    }
+    
+    func updatePinState(isPinned: Bool) {
+        let imageName = isPinned ? "pin.fill" : "pin"
+        pinButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
 }
