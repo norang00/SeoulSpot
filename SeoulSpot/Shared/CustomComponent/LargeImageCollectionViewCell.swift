@@ -7,9 +7,7 @@
 
 import UIKit
 import SnapKit
-/* [TODO]
- - 그림자 효과
- */
+
 final class LargeImageCollectionViewCell: UICollectionViewCell {
     
     static var identifier = String(describing: LargeImageCollectionViewCell.self)
@@ -18,6 +16,7 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
     private let categoryBadge = BadgeLabel(style: .theme)
     private let locationBadge = BadgeLabel(style: .location)
     private let isFreeBadge = BadgeLabel(style: .isFree)
+    private let dateBadge = BadgeLabel(style: .date)
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -36,6 +35,7 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(categoryBadge)
         contentView.addSubview(locationBadge)
         contentView.addSubview(isFreeBadge)
+        contentView.addSubview(dateBadge)
     }
     
     private func setupLayout() {
@@ -61,6 +61,12 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
             $0.leading.equalTo(locationBadge.snp.trailing).offset(6)
             $0.height.equalTo(30)
         }
+        
+        dateBadge.snp.makeConstraints {
+            $0.trailing.equalTo(imageView).inset(10)
+            $0.bottom.equalTo(imageView).inset(10)
+            $0.height.equalTo(35)
+        }
     }
     
     private func setupView() {
@@ -78,5 +84,27 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         categoryBadge.text = event.codeName
         locationBadge.text = event.guName
         isFreeBadge.text = event.isFree
+        
+        setDateBadge(event)
+    }
+    
+    private func setDateBadge(_ event: CulturalEvent) { // [TODO] DateFormatter 로 extension 빼두기
+        if let start = event.toEventStartDate,
+           let end = event.toEventEndDate {
+            
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "ko_KR")
+            formatter.dateFormat = "M월 d일 E"
+            let startString = formatter.string(from: start)
+            
+            if Calendar.current.isDate(start, inSameDayAs: end) {
+                dateBadge.text = "\(startString)" // 하루
+            } else {
+                dateBadge.text = "\(startString) ~"
+            }
+            
+        } else {
+            dateBadge.text = nil
+        }
     }
 }

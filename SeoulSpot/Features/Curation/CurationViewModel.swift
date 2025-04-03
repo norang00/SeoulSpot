@@ -22,7 +22,7 @@ final class CurationViewModel: BaseViewModel {
     private func fetchMainEvents() {
         isLoading = true
 
-        let option = CulturalEventRequestOption(startIndex: 1, endIndex: 100)
+        let option = CulturalEventRequestOption(startIndex: 1, endIndex: 500)
         let request = NetworkRequest.culturalEvents(option: option)
 
         NetworkManager.shared.callRequestToAPIServer(request, CulturalEventResponse.self) { [weak self] result in
@@ -45,8 +45,7 @@ final class CurationViewModel: BaseViewModel {
                         guard let start = $0.toEventStartDate else { return false }
                         return (today...twoWeeksLater).contains(start)
                     }
-
-                    self?.mainItems = Array(events.prefix(10)).shuffled() // 최대 10개
+                    self?.mainItems = Array(events.prefix(20)).shuffled() // 최대 20개
 
                 case .failure(let error):
                     self?.errorMessage.send(error.localizedDescription)
@@ -61,8 +60,6 @@ final class CurationViewModel: BaseViewModel {
 
         NetworkManager.shared.callRequestToAPIServer(request, CulturalEventResponse.self) { [weak self] result in
             DispatchQueue.main.async {
-                
-                print(#function, request.endpoint.absoluteURL)
 
                 switch result {
                 case .success(let response):

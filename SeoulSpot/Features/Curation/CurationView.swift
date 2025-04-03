@@ -80,6 +80,7 @@ final class CurationView: BaseView {
         
         [mainCollectionView].forEach {
             $0.showsHorizontalScrollIndicator = false
+            $0.alwaysBounceVertical = false
             $0.collectionViewLayout = createLayout()
         }
 
@@ -112,7 +113,7 @@ final class CurationView: BaseView {
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         section.interGroupSpacing = 16
         section.orthogonalScrollingBehavior = .groupPaging
-
+        
         return UICollectionViewCompositionalLayout(section: section)
     }
 }

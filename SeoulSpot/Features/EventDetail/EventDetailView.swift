@@ -6,13 +6,19 @@
 //
 
 import UIKit
+import SnapKit
 
 final class EventDetailView: BaseView {
 
-    let posterImageView = UIImageView()
-    let pinButton = UIButton(type: .system)
-    let titleLabel = UILabel()
-    let subtitleLabel = UILabel()
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+    
+    private let posterImageView = UIImageView()
+    private var posterImageViewHeightConstraint: Constraint?
+    
+    private let pinButton = UIButton(type: .system)
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
 
     private let infoStackView = UIStackView()
 
@@ -31,16 +37,19 @@ final class EventDetailView: BaseView {
     private let categoryTitleLabel = UILabel()
     private let categoryValueLabel = UILabel()
     
-    let linkButton = UIButton(type: .system)
+    private let linkButton = UIButton(type: .system)
     
-    let emptyView = UIView()
+    private let emptyView = UIView()
     
     override func setupHierarchy() {
+        
+        addSubview(scrollView)
+        scrollView.addSubview(contentView)
         
         [posterImageView, pinButton,
          titleLabel, subtitleLabel,
          linkButton, emptyView].forEach {
-            addSubview($0)
+            contentView.addSubview($0)
         }
         
         let dateRow = UIStackView(arrangedSubviews: [dateTitleLabel, dateValueLabel])
@@ -59,57 +68,72 @@ final class EventDetailView: BaseView {
         infoStackView.axis = .vertical
         infoStackView.spacing = 12
         
-        addSubview(infoStackView)
+        contentView.addSubview(infoStackView)
     }
     
     override func setupLayout() {
+        
+        scrollView.snp.makeConstraints {
+            $0.edges.equalTo(safeAreaLayoutGuide)
+        }
+
+        contentView.snp.makeConstraints {
+            $0.edges.equalTo(scrollView)
+            $0.width.equalTo(scrollView)
+        }
+        
         posterImageView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.horizontalEdges.equalTo(safeAreaLayoutGuide)
-            $0.height.equalTo(520)
+            $0.top.equalTo(contentView)
+            $0.horizontalEdges.equalTo(contentView)
+            self.posterImageViewHeightConstraint = $0.height.equalTo(100).constraint
+
+//            $0.height.equalTo(520)
+//            $0.height.greaterThanOrEqualTo(200)
         }
         
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(posterImageView.snp.bottom).offset(16)
-            $0.leading.equalTo(safeAreaLayoutGuide).inset(20)
+            $0.leading.equalTo(contentView).inset(20)
             $0.width.equalTo(320)
         }
 
         pinButton.snp.makeConstraints {
             $0.centerY.equalTo(titleLabel)
             $0.leading.equalTo(titleLabel.snp.trailing).offset(10)
-            $0.trailing.equalTo(safeAreaLayoutGuide).inset(10)
+            $0.trailing.equalTo(contentView).inset(10)
             $0.height.equalTo(titleLabel)
         }
 
         subtitleLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(20)
+            $0.leading.trailing.equalTo(contentView).inset(20)
         }
         
         infoStackView.snp.makeConstraints {
             $0.top.equalTo(subtitleLabel.snp.bottom).offset(10)
-            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(20)
+            $0.leading.trailing.equalTo(contentView).inset(20)
         }
 
         linkButton.snp.makeConstraints {
             $0.top.equalTo(infoStackView.snp.bottom).offset(10)
-            $0.centerX.equalTo(safeAreaLayoutGuide)
+            $0.centerX.equalTo(contentView)
+            $0.bottom.equalTo(contentView)
         }
         
-        emptyView.snp.makeConstraints {
-            $0.top.equalTo(linkButton.snp.bottom)
-            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
-            $0.height.greaterThanOrEqualTo(8)
-            $0.bottom.equalTo(safeAreaLayoutGuide)
-        }
+//        emptyView.snp.makeConstraints {
+//            $0.top.equalTo(linkButton.snp.bottom)
+//            $0.leading.trailing.equalTo(contentView)
+//            $0.height.greaterThanOrEqualTo(8)
+//            $0.bottom.equalTo(contentView)
+//        }
     }
 
     override func setupView() {
         backgroundColor = .white
 
-        posterImageView.contentMode = .scaleAspectFill
-        posterImageView.clipsToBounds = true
+        posterImageView.contentMode = .scaleAspectFit
+//        posterImageView.contentMode = .scaleAspectFill
+//        posterImageView.clipsToBounds = true
 
         titleLabel.font = .pretendardBold(ofSize: 20)
         titleLabel.numberOfLines = 2
@@ -125,7 +149,7 @@ final class EventDetailView: BaseView {
             $0.font = .pretendardMedium(ofSize: 14)
             $0.setContentHuggingPriority(.required, for: .horizontal)
             $0.setContentCompressionResistancePriority(.required, for: .horizontal)
-            $0.snp.makeConstraints { $0.width.equalTo(60) } // ✅ 너비 고정 (예: 60pt)
+            $0.snp.makeConstraints { $0.width.equalTo(60) }
         }
 
         [dateValueLabel, placeValueLabel, targetValueLabel, feeValueLabel, categoryValueLabel].forEach {
@@ -154,7 +178,18 @@ final class EventDetailView: BaseView {
         categoryValueLabel.text = event.codeName
         
         if let url = URL(string: event.mainImage ?? "") {
-            posterImageView.loadImage(from: url)
+            posterImageView.loadImage(from: url) { [weak self] image in
+                guard let self = self, let image = image else { return }
+
+                let width = UIScreen.main.bounds.width
+                let aspectRatio = image.size.height / image.size.width
+                let newHeight = width * aspectRatio
+                
+                print(aspectRatio, newHeight)
+                
+                self.posterImageViewHeightConstraint?.update(offset: newHeight)
+                self.layoutIfNeeded()
+            }
         }
 
         if let link = event.orgLink, let url = URL(string: link) { // [TODO] WebView 로 전환

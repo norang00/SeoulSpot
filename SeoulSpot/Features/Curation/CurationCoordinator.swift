@@ -12,8 +12,6 @@ final class CurationCoordinator: Coordinator {
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
-
-        print("CurationCoordinator", #function)
     }
 
     func start() {
@@ -33,7 +31,6 @@ final class CurationCoordinator: Coordinator {
 
 extension CurationCoordinator: CurationViewControllerDelegate {
     func didSelectEvent(_ event: CulturalEvent) {
-        print(#function, event.title)
         showDetail(for: event)
     }
 }

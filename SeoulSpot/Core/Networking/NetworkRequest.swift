@@ -14,10 +14,12 @@ struct CulturalEventRequestOption {
     var codeName: String? = nil
     var guName: String? = nil
     var title: String? = nil
+    var date: String? = nil  // "yyyy-mm-dd"
 }
 
 // 문화행사 요청 타입 정의
 enum NetworkRequest {
+    // http://openapi.seoul.go.kr:8088/{API_KEY}/json/culturalEventInfo/{startIndex}/{endIndex}/{codeName}/{guName}/{title}/{date}
     case culturalEvents(option: CulturalEventRequestOption)
 
     // 서울시 열린데이터 API URL
@@ -49,7 +51,9 @@ enum NetworkRequest {
             let codeName = safeComponent(option.codeName)
             let guName = safeComponent(option.guName)
             let title = safeComponent(option.title)
-            let path = "\(datasetPath)/\(option.startIndex)/\(option.endIndex)/\(codeName)/\(guName)/\(title)"
+            let date = safeComponent(option.date)
+            
+            let path = "\(datasetPath)/\(option.startIndex)/\(option.endIndex)/\(codeName)/\(guName)/\(title)/\(date)"
             let fullURLString = baseURL + path
             return URL(string: fullURLString)!
         }
@@ -60,12 +64,12 @@ enum NetworkRequest {
         return .get
     }
 
-    // 요청 헤더 (필요 시 추가)
+    // 요청 헤더
     var headers: [String: String]? {
         return nil
     }
 
-    // 파라미터 (GET 이므로 사용 안 함)
+    // 파라미터
     var parameters: [String: Any]? {
         return nil
     }

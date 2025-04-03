@@ -13,12 +13,14 @@ enum BadgeStyle {
     case location
     case theme
     case isFree
+    case date
 
     var backgroundColor: UIColor {
         switch self {
         case .location: return .locationBadge
         case .theme: return .themeBadge
         case .isFree: return .isFreeBadge
+        case .date: return .black
         }
     }
 
