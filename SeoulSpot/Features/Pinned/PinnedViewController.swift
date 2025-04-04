@@ -6,14 +6,15 @@
 //
 
 import UIKit
+import Combine
 
 protocol PinnedViewControllerDelegate: AnyObject {
-    func didSelectEvent(_ event: Event)
+    func didSelectEvent(_ event: CulturalEvent)
 }
 
 final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel> {
 
-    weak var delegate: PinnedViewControllerDelegate?
+    var delegate: PinnedViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,13 +24,20 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
 
     override func bindViewModel() {
         viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showLoading($0) }
             .store(in: &cancellables)
 
         viewModel.errorMessage
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showError($0) }
+            .store(in: &cancellables)
+        
+        viewModel.$pinnedEvents
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.mainView.tableView.reloadData()
+            }
             .store(in: &cancellables)
     }
 }
@@ -43,12 +51,21 @@ extension PinnedViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        viewModel.pinnedEvents.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: BasicInfoTableViewCell.identifier, for: indexPath) as! BasicInfoTableViewCell
+        let event = viewModel.pinnedEvents[indexPath.row]
+        cell.configure(with: event)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedEvent: CulturalEvent
+        selectedEvent = viewModel.pinnedEvents[indexPath.row]
+        delegate?.didSelectEvent(selectedEvent)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
 }

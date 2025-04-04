@@ -83,7 +83,6 @@ final class EventDetailView: BaseView {
         }
         
         posterImageView.snp.makeConstraints {
-            
             $0.top.equalToSuperview().offset(-44)
             $0.horizontalEdges.equalTo(contentView)
             self.posterImageViewHeightConstraint = $0.height.equalTo(100).constraint
@@ -92,13 +91,13 @@ final class EventDetailView: BaseView {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(posterImageView.snp.bottom).offset(16)
             $0.leading.equalTo(contentView).inset(20)
-            $0.width.equalTo(320)
+            $0.trailing.lessThanOrEqualTo(pinButton.snp.leading).offset(-10)
         }
 
         pinButton.snp.makeConstraints {
             $0.centerY.equalTo(titleLabel)
-            $0.leading.equalTo(titleLabel.snp.trailing).offset(10)
             $0.trailing.equalTo(contentView).inset(10)
+            $0.width.equalTo(30)
             $0.height.equalTo(titleLabel)
         }
 
