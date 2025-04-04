@@ -40,7 +40,7 @@ required init?(coder: NSCoder) {
 }
 
 private func setupStyle(style: BadgeStyle) {
-    font = .pretendardBold(ofSize: 14)
+    font = .pretendardBold(ofSize: 12)
     textAlignment = .center
     textColor = style.textColor
     backgroundColor = style.backgroundColor
@@ -52,6 +52,6 @@ private func setupStyle(style: BadgeStyle) {
 
 override var intrinsicContentSize: CGSize {
     let superSize = super.intrinsicContentSize
-    return CGSize(width: superSize.width + 16, height: superSize.height + 8)
+    return CGSize(width: superSize.width + 16, height: superSize.height + 4)
 }
 }

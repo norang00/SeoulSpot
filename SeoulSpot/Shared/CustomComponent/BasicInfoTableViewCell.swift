@@ -91,7 +91,7 @@ final class BasicInfoTableViewCell: UITableViewCell {
         contentView.backgroundColor = .clear
 
         borderView.backgroundColor = .white
-        borderView.layer.cornerRadius = 12
+        borderView.layer.cornerRadius = 8
         borderView.layer.borderWidth = 1
         borderView.layer.borderColor = UIColor.systemGray4.cgColor
         borderView.clipsToBounds = true

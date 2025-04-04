@@ -12,6 +12,7 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupNavigationView()
         mainView.configure(with: viewModel.event)
     }
     
@@ -39,4 +40,14 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
             .store(in: &cancellables)
     }
 
+    private func setupNavigationView() {
+        // 네비게이션 바 투명 처리
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+
+        // 백 버튼은 기본 스타일 유지
+        navigationItem.title = ""
+        navigationItem.backButtonTitle = ""
+    }
 }

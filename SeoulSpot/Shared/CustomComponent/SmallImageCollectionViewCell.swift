@@ -37,7 +37,9 @@ final class SmallImageCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupView() {
-        imageView.layer.cornerRadius = 10
+        imageView.layer.borderWidth = 1
+        imageView.layer.borderColor = UIColor.gray.cgColor
+        imageView.layer.cornerRadius = 8
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
     }

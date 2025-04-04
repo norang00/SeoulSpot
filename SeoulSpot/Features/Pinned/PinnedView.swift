@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class PinnedView: BaseView {
+final class PinnedView: BaseView {
 
     let sortButton = UIButton(type: .system)
     let tableView = UITableView(frame: .zero, style: .plain)

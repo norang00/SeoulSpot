@@ -83,7 +83,8 @@ final class EventDetailView: BaseView {
         }
         
         posterImageView.snp.makeConstraints {
-            $0.top.equalTo(contentView)
+            
+            $0.top.equalToSuperview().offset(-44)
             $0.horizontalEdges.equalTo(contentView)
             self.posterImageViewHeightConstraint = $0.height.equalTo(100).constraint
         }
