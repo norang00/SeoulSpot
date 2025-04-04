@@ -19,7 +19,14 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.title = "저장한 이벤트📌"
+
         setupTableView()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.fetchPinnedEvents()
     }
 
     override func bindViewModel() {

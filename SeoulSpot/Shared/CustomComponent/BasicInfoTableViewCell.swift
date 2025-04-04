@@ -44,7 +44,7 @@ final class BasicInfoTableViewCell: UITableViewCell {
         titleLabel.text = ""
         subtitleLabel.text = ""
         dateLabel.text = ""
-        thumbnailImageView.image = UIImage(named: "placeholder")
+        thumbnailImageView.image = nil
     }
 
     // MARK: - Hierarchy
@@ -68,7 +68,7 @@ final class BasicInfoTableViewCell: UITableViewCell {
     private func setupLayout() {
         borderView.snp.makeConstraints {
             $0.horizontalEdges.equalTo(contentView).inset(16)
-            $0.verticalEdges.equalTo(contentView).inset(6)
+            $0.verticalEdges.equalTo(contentView).inset(4)
         }
         
         thumbnailImageView.snp.makeConstraints {
@@ -125,11 +125,12 @@ final class BasicInfoTableViewCell: UITableViewCell {
         isFreeBadge.setContentHuggingPriority(.required, for: .horizontal)
         isFreeBadge.setContentCompressionResistancePriority(.required, for: .horizontal)
         
-        titleLabel.font = .boldSystemFont(ofSize: 16)
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        dateLabel.font = .systemFont(ofSize: 13)
+        titleLabel.numberOfLines = 2
+        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.font = .pretendardBold(ofSize: 16)
+        subtitleLabel.font = .pretendardMedium(ofSize: 14)
+        dateLabel.font = .pretendardMedium(ofSize: 13)
         dateLabel.textColor = .secondaryLabel
-
     }
 
     // MARK: - Configure

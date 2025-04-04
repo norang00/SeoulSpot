@@ -38,7 +38,7 @@ final class PinnedView: BaseView {
 //        sortButton.tintColor = .label
 
         tableView.separatorStyle = .none
-        tableView.rowHeight = 140
+        tableView.rowHeight = 150
         tableView.contentInset = .init(top: 0, left: 0, bottom: 0, right: 0)
     }
 }

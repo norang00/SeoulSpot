@@ -34,9 +34,9 @@ final class CoreDataManager {
         
         do {
             try context.save()
-            print("✅ Saved to CoreData")
+            print("Saved to CoreData")
         } catch {
-            print("❌ Failed to save: \(error)")
+            print("Failed to save: \(error)")
         }
     }
     
@@ -46,7 +46,6 @@ final class CoreDataManager {
         do {
             return try context.fetch(request).isEmpty == false
         } catch {
-            print("❌ Fetch error: \(error)")
             return false
         }
     }
@@ -56,7 +55,6 @@ final class CoreDataManager {
         do {
             return try context.fetch(request)
         } catch {
-            print("❌ Fetch error: \(error)")
             return []
         }
     }
@@ -69,9 +67,9 @@ final class CoreDataManager {
             let results = try context.fetch(request)
             results.forEach { context.delete($0) }
             try context.save()
-            print("🗑️ Deleted from CoreData")
+            print("Deleted from CoreData")
         } catch {
-            print("❌ Delete error: \(error)")
+            print("Delete error: \(error)")
         }
     }
 }

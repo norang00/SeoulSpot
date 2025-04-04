@@ -157,7 +157,7 @@ final class EventDetailView: BaseView {
         linkButton.setTitle("공식 홈페이지 바로가기", for: .normal)
     }
 
-    func configure(with event: CulturalEvent) {
+    func configure(with event: CulturalEvent, _ isPinned: Bool) {
         titleLabel.text = event.title
         subtitleLabel.text = "\(event.orgName) · \(event.guName)"
         dateValueLabel.text = event.date
@@ -186,6 +186,8 @@ final class EventDetailView: BaseView {
         } else {
             linkButton.isHidden = true
         }
+        
+        updatePinState(isPinned: isPinned)
     }
 
     @objc private func pinTapped() {
@@ -194,6 +196,7 @@ final class EventDetailView: BaseView {
     }
     
     func updatePinState(isPinned: Bool) {
+        print(#function, isPinned)
         let imageName = isPinned ? "pin.fill" : "pin"
         pinButton.setImage(UIImage(systemName: imageName), for: .normal)
     }

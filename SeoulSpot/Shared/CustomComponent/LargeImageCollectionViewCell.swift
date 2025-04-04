@@ -63,8 +63,8 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         }
         
         dateBadge.snp.makeConstraints {
-            $0.trailing.equalTo(imageView).inset(10)
-            $0.bottom.equalTo(imageView).inset(10)
+            $0.trailing.equalTo(contentView).inset(16)
+            $0.bottom.equalTo(contentView).inset(16)
             $0.height.equalTo(35)
         }
     }

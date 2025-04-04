@@ -8,7 +8,7 @@
 import Foundation
 
 final class EventDetailViewModel: BaseViewModel {
-    
+        
     let event: CulturalEvent
     @Published var isPinned: Bool = false
 
@@ -17,12 +17,18 @@ final class EventDetailViewModel: BaseViewModel {
         super.init()
     }
     
+    func getIsPinned() -> Bool {
+        isPinned = CoreDataManager.shared.isEventPinned(event)
+        return isPinned
+    }
+    
     func togglePin() {
         if isPinned {
             CoreDataManager.shared.deleteEvent(event)
+            isPinned = false
         } else {
             CoreDataManager.shared.saveEvent(event)
+            isPinned = true
         }
-        isPinned.toggle()
     }
 }
