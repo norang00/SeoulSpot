@@ -72,7 +72,7 @@ final class EventDetailView: BaseView {
     }
     
     override func setupLayout() {
-        
+
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -157,9 +157,9 @@ final class EventDetailView: BaseView {
         linkButton.setTitle("공식 홈페이지 바로가기", for: .normal)
     }
 
-    func configure(with event: CulturalEvent, _ isPinned: Bool) {
+    func configure(with event: CulturalEventModel, _ isPinned: Bool) {
         titleLabel.text = event.title
-        subtitleLabel.text = "\(event.orgName) · \(event.guName)"
+        subtitleLabel.text = "\(event.orgName ?? "") · \(event.guName ?? "")"
         dateValueLabel.text = event.date
         placeValueLabel.text = event.place
         targetValueLabel.text = event.useTarget ?? "누구나"
@@ -191,12 +191,10 @@ final class EventDetailView: BaseView {
     }
 
     @objc private func pinTapped() {
-        print(#function)
         onPinTapped?()
     }
     
     func updatePinState(isPinned: Bool) {
-        print(#function, isPinned)
         let imageName = isPinned ? "pin.fill" : "pin"
         pinButton.setImage(UIImage(systemName: imageName), for: .normal)
     }

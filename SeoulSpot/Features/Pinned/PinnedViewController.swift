@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 protocol PinnedViewControllerDelegate: AnyObject {
-    func didSelectEvent(_ event: CulturalEvent)
+    func didSelectEvent(_ event: CulturalEventModel)
 }
 
 final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel> {
@@ -26,6 +26,7 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         viewModel.fetchPinnedEvents()
     }
 
@@ -69,10 +70,9 @@ extension PinnedViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedEvent: CulturalEvent
+        let selectedEvent: CulturalEventModel
         selectedEvent = viewModel.pinnedEvents[indexPath.row]
         delegate?.didSelectEvent(selectedEvent)
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
 }

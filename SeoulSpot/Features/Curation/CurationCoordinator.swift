@@ -21,7 +21,7 @@ final class CurationCoordinator: Coordinator {
         navigationController.pushViewController(curationVC, animated: false)
     }
     
-    func showDetail(for event: CulturalEvent) {
+    func showDetail(for event: CulturalEventModel) {
         let detailVM = EventDetailViewModel(event: event)
         let detailVC = EventDetailViewController(viewModel: detailVM)
         navigationController.topViewController?.navigationItem.backButtonTitle = ""
@@ -30,7 +30,7 @@ final class CurationCoordinator: Coordinator {
 }
 
 extension CurationCoordinator: CurationViewControllerDelegate {
-    func didSelectEvent(_ event: CulturalEvent) {
+    func didSelectEvent(_ event: CulturalEventModel) {
         showDetail(for: event)
     }
 }

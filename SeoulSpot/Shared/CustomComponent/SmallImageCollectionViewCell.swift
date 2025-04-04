@@ -44,7 +44,7 @@ final class SmallImageCollectionViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
     }
     
-    func configure(with event: CulturalEvent) {
+    func configure(with event: CulturalEventModel) {
         if let imageURL = URL(string: event.mainImage ?? "") {
             imageView.loadImage(from: imageURL, placeholder: UIImage(named: "placeholder"))
         }

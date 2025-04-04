@@ -1,5 +1,5 @@
 //
-//  CulturalEventEntity+Extension.swift
+//  PinnedEventEntity+Extension.swift
 //  SeoulSpot
 //
 //  Created by Kyuhee hong on 4/4/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension CulturalEventEntity {
+extension PinnedEventEntity {
     func toModel() -> CulturalEventModel {
         return CulturalEventModel(
             codeName: self.codeName,
@@ -35,3 +35,5 @@ extension CulturalEventEntity {
         )
     }
 }
+
+

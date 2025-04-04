@@ -17,14 +17,14 @@ final class SearchMapCoordinator: Coordinator {
     func start() {
         let viewModel = SearchMapViewModel()
         let vc = SearchMapViewController(viewModel: viewModel)
-        vc.delegate = self
+//        vc.delegate = self
         navigationController.pushViewController(vc, animated: false)
     }
 }
 
-extension SearchMapCoordinator: SearchMapViewControllerDelegate {
-    func didSelectEvent(_ event: Event) {
+//extension SearchMapCoordinator: SearchMapViewControllerDelegate {
+//    func didSelectEvent(_ event: Event) {
 //        let detailVC = EventDetailViewController(event: event)
 //        navigationController.pushViewController(detailVC, animated: true)
-    }
-}
+//    }
+//}

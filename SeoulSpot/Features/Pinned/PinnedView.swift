@@ -37,6 +37,7 @@ final class PinnedView: BaseView {
 //        sortButton.setImage(UIImage(systemName: "line.3.horizontal.decrease.circle"), for: .normal)
 //        sortButton.tintColor = .label
 
+        tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
         tableView.rowHeight = 150
         tableView.contentInset = .init(top: 0, left: 0, bottom: 0, right: 0)

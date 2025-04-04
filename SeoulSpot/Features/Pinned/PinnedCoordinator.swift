@@ -21,17 +21,16 @@ final class PinnedCoordinator: Coordinator {
         navigationController.pushViewController(vc, animated: false)
     }
     
-    func showDetail(for event: CulturalEvent) {
+    func showDetail(for event: CulturalEventModel) {
         let detailVM = EventDetailViewModel(event: event)
         let detailVC = EventDetailViewController(viewModel: detailVM)
         navigationController.topViewController?.navigationItem.backButtonTitle = ""
         navigationController.pushViewController(detailVC, animated: true)
     }
-
 }
 
 extension PinnedCoordinator: PinnedViewControllerDelegate {
-    func didSelectEvent(_ event: CulturalEvent) {
+    func didSelectEvent(_ event: CulturalEventModel) {
         showDetail(for: event)
     }
 }

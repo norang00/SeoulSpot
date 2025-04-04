@@ -14,7 +14,7 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
         super.viewDidLoad()
         
         setupNavigationView()
-        mainView.configure(with: viewModel.event, viewModel.getIsPinned())
+        mainView.configure(with: viewModel.event, viewModel.isPinned)
     }
     
     override func bindViewModel() {
@@ -28,10 +28,15 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
             .sink { [weak self] in self?.showError($0) }
             .store(in: &cancellables)
         
+        viewModel.$isPinned
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isPinned in
+                self?.mainView.updatePinState(isPinned: isPinned)
+            }
+            .store(in: &cancellables)
+        
         mainView.onPinTapped = { [weak self] in
-            guard let self = self else { return }
-            self.viewModel.togglePin()
-            self.mainView.updatePinState(isPinned: self.viewModel.isPinned)
+            self?.viewModel.togglePin()
         }
     }
 

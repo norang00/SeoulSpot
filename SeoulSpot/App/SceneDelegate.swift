@@ -15,8 +15,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
 
-        let appCoordinator = AppCoordinator(window: window)
-        appCoordinator.start()
+        initData { [weak self] in
+            let appCoordinator = AppCoordinator(window: self?
+                .window)
+            appCoordinator.start()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -51,4 +54,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
 
+}
+
+// Fetch Data at App Launch
+extension SceneDelegate {
+    
+    private func initData(completionHandler: @escaping () -> Void) {
+        if AppDataTracker.shared.shouldRefreshEventData() {
+            NetworkManager.shared.callRequestToAPIServer(.culturalEvents(option: .init(startIndex: 1, endIndex: 300)), CulturalEventResponse.self) { result in
+                switch result {
+                case .success(let success):
+                    let events = success.culturalEventInfo.row
+                    CoreDataManager.shared.deleteAllEvents()
+                    CoreDataManager.shared.saveEventBatch(events)
+                    completionHandler()
+                case .failure(let failure):
+                    print("failed to init data", failure.localizedDescription)
+                    // [TODO] 실패 처리 필요
+                }
+            }
+        } else {
+            print("use saved data in CoreData")
+            completionHandler()
+        }
+    }
 }

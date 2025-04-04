@@ -34,12 +34,20 @@ struct CulturalEvent: Decodable {
     let orgName: String
     let useTarget: String?
     let useFee: String?
+    let player: String?
+    let program: String?
+    let etcDesc: String?
     let orgLink: String?
     let mainImage: String?
-    let homepage: String?
-    let isFree: String?
+    let rgstDate: String?
+    let ticket: String?
+    let startDate: String?
+    let endDate: String?
+    let themeCode: String?
     let lot: String?
     let lat: String?
+    let isFree: String?
+    let homepage: String?
 
     enum CodingKeys: String, CodingKey {
         case codeName = "CODENAME"
@@ -50,27 +58,19 @@ struct CulturalEvent: Decodable {
         case orgName = "ORG_NAME"
         case useTarget = "USE_TRGT"
         case useFee = "USE_FEE"
+        case player = "PLAYER"
+        case program = "PROGRAM"
+        case etcDesc = "ETC_DESC"
         case orgLink = "ORG_LINK"
         case mainImage = "MAIN_IMG"
-        case homepage = "HMPG_ADDR"
-        case isFree = "IS_FREE"
+        case rgstDate = "RGSTDATE"
+        case ticket = "TICKET"
+        case startDate = "STRTDATE"
+        case endDate = "END_DATE"
+        case themeCode = "THEMECODE"
         case lot = "LOT"
         case lat = "LAT"
-    }
-}
-
-extension CulturalEvent {
-    /// CulturalEvent.date 값에서 시작일만 추출 → Date 변환
-    var toEventStartDate: Date? {
-        let startDateStr = date.components(separatedBy: "~").first?.trimmingCharacters(in: .whitespaces)
-        return Date.from(dateString: startDateStr ?? "")
-    }
-
-    /// CulturalEvent.date 값에서 종료일만 추출 → Date 변환
-    var toEventEndDate: Date? {
-        let parts = date.components(separatedBy: "~")
-        guard parts.count > 1 else { return nil }
-        let endDateStr = parts[1].trimmingCharacters(in: .whitespaces)
-        return Date.from(dateString: endDateStr)
+        case isFree = "IS_FREE"
+        case homepage = "HMPG_ADDR"
     }
 }

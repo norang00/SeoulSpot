@@ -8,32 +8,31 @@
 import UIKit
 
 protocol CurationViewControllerDelegate: AnyObject {
-    func didSelectEvent(_ event: CulturalEvent)
+    func didSelectEvent(_ event: CulturalEventModel)
 }
 
 final class CurationViewController: BaseViewController<CurationView, CurationViewModel> {
     
-    var delegate: CurationViewControllerDelegate? // [TODO] Deinit 되는지 확인
+    var delegate: CurationViewControllerDelegate?
  
     override func viewDidLoad() {
         super.viewDidLoad()
-//        setupNavigationView()
         setupCollectionView()
     }
     
     override func bindViewModel() {
         viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showLoading($0) }
             .store(in: &cancellables)
         
         viewModel.errorMessage
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showError($0) }
             .store(in: &cancellables)
         
         viewModel.$mainItems
-            .receive(on: DispatchQueue.main) // [TODO] Runloop 이랑 뭐가 다른거지?
+            .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.mainView.mainCollectionView.reloadData()
             }
@@ -92,7 +91,7 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         var cell: UICollectionViewCell
-        let event: CulturalEvent
+        let event: CulturalEventModel
 
         switch collectionView {
         case mainView.mainCollectionView:
@@ -115,7 +114,7 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedEvent: CulturalEvent
+        let selectedEvent: CulturalEventModel
 
         switch collectionView {
         case mainView.mainCollectionView:

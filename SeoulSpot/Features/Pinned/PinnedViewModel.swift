@@ -10,17 +10,14 @@ import Combine
 
 final class PinnedViewModel: BaseViewModel {
 
-    @Published var pinnedEvents: [CulturalEvent] = []
+    @Published var pinnedEvents: [CulturalEventModel] = []
 
     override init() {
         super.init()
         fetchPinnedEvents()
-        
-        print("PinnedViewModel", #function, pinnedEvents)
     }
 
     func fetchPinnedEvents() {
-        let entities = CoreDataManager.shared.fetchEvents()
-        self.pinnedEvents = entities.compactMap { $0.toModel() }
+        pinnedEvents = CoreDataManager.shared.fetchPinnedEvents()
     }
 }

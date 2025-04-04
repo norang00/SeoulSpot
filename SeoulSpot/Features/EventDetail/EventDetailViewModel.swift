@@ -9,26 +9,25 @@ import Foundation
 
 final class EventDetailViewModel: BaseViewModel {
         
-    let event: CulturalEvent
+    let event: CulturalEventModel
     @Published var isPinned: Bool = false
 
-    init(event: CulturalEvent) {
+    init(event: CulturalEventModel) {
         self.event = event
         super.init()
+        checkPinnedStatus()
     }
     
-    func getIsPinned() -> Bool {
+    func checkPinnedStatus() {
         isPinned = CoreDataManager.shared.isEventPinned(event)
-        return isPinned
     }
     
     func togglePin() {
         if isPinned {
-            CoreDataManager.shared.deleteEvent(event)
-            isPinned = false
+            CoreDataManager.shared.unpinEvent(event)
         } else {
-            CoreDataManager.shared.saveEvent(event)
-            isPinned = true
+            CoreDataManager.shared.pinEvent(event)
         }
+        isPinned.toggle()
     }
 }

@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol SearchMapViewControllerDelegate: AnyObject {
-    func didSelectEvent(_ event: Event)
-}
+//protocol SearchMapViewControllerDelegate: AnyObject {
+//    func didSelectEvent(_ event: Event)
+//}
 
 final class SearchMapViewController: BaseViewController<SearchMapView, SearchMapViewModel> {
 
-    weak var delegate: SearchMapViewControllerDelegate?
+//    weak var delegate: SearchMapViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

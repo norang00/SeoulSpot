@@ -3,17 +3,51 @@
     <entity name="CulturalEventEntity" representedClassName="CulturalEventEntity" syncable="YES" codeGenerationType="class">
         <attribute name="codeName" optional="YES" attributeType="String"/>
         <attribute name="date" optional="YES" attributeType="String"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="etcDesc" optional="YES" attributeType="String"/>
         <attribute name="guName" optional="YES" attributeType="String"/>
         <attribute name="homepage" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isFree" optional="YES" attributeType="String"/>
-        <attribute name="lat" optional="YES" attributeType="String"/>
-        <attribute name="lot" optional="YES" attributeType="String"/>
+        <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="lot" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="mainImage" optional="YES" attributeType="String"/>
         <attribute name="orgLink" optional="YES" attributeType="String"/>
         <attribute name="orgName" optional="YES" attributeType="String"/>
         <attribute name="place" optional="YES" attributeType="String"/>
+        <attribute name="player" optional="YES" attributeType="String"/>
+        <attribute name="program" optional="YES" attributeType="String"/>
+        <attribute name="rgstDate" optional="YES" attributeType="String"/>
+        <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="themeCode" optional="YES" attributeType="String"/>
+        <attribute name="ticket" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="uniqueKey" optional="YES" attributeType="String"/>
+        <attribute name="useFee" optional="YES" attributeType="String"/>
+        <attribute name="useTarget" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="PinnedEventEntity" representedClassName="PinnedEventEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="codeName" optional="YES" attributeType="String"/>
+        <attribute name="date" optional="YES" attributeType="String"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="etcDesc" optional="YES" attributeType="String"/>
+        <attribute name="guName" optional="YES" attributeType="String"/>
+        <attribute name="homepage" optional="YES" attributeType="String"/>
+        <attribute name="isFree" optional="YES" attributeType="String"/>
+        <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="lot" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="mainImage" optional="YES" attributeType="String"/>
+        <attribute name="orgLink" optional="YES" attributeType="String"/>
+        <attribute name="orgName" optional="YES" attributeType="String"/>
+        <attribute name="place" optional="YES" attributeType="String"/>
+        <attribute name="player" optional="YES" attributeType="String"/>
+        <attribute name="program" optional="YES" attributeType="String"/>
+        <attribute name="rgstDate" optional="YES" attributeType="String"/>
+        <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="themeCode" optional="YES" attributeType="String"/>
+        <attribute name="ticket" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="uniqueKey" optional="YES" attributeType="String"/>
         <attribute name="useFee" optional="YES" attributeType="String"/>
         <attribute name="useTarget" optional="YES" attributeType="String"/>
     </entity>

@@ -80,7 +80,7 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
     }
     
-    func configure(with event: CulturalEvent) {
+    func configure(with event: CulturalEventModel) {
         if let imageURL = URL(string: event.mainImage ?? "") {
             imageView.loadImage(from: imageURL, placeholder: UIImage(named: "placeholder"))
         }
@@ -91,9 +91,9 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         setDateBadge(event)
     }
     
-    private func setDateBadge(_ event: CulturalEvent) { // [TODO] DateFormatter 로 extension 빼두기
-        if let start = event.toEventStartDate,
-           let end = event.toEventEndDate {
+    private func setDateBadge(_ event: CulturalEventModel) { // [TODO] DateFormatter 로 extension 빼두기
+        if let start = event.startDate,
+           let end = event.endDate {
             
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "ko_KR")
