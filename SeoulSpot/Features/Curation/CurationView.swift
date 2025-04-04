@@ -9,6 +9,9 @@ import UIKit
 import SnapKit
 
 final class CurationView: BaseView {
+    
+    let topBarView = UIView()
+    let logoImageView = UIImageView()
 
     let mainTitleLabel = UILabel()
     let mainCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -19,6 +22,9 @@ final class CurationView: BaseView {
     let emptyView = UIView()
     
     override func setupHierarchy() {
+        addSubview(topBarView)
+        topBarView.addSubview(logoImageView)
+        
         addSubview(mainTitleLabel)
         addSubview(mainCollectionView)
 
@@ -29,8 +35,20 @@ final class CurationView: BaseView {
     }
 
     override func setupLayout() {
+        
+        topBarView.snp.makeConstraints {
+            $0.top.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide.snp.top)
+        }
+        
+        logoImageView.snp.makeConstraints {
+            $0.centerX.equalTo(topBarView)
+            $0.bottom.equalTo(topBarView).inset(16)
+            $0.height.equalTo(20)
+        }
+        
         mainTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide)
+            $0.top.equalTo(safeAreaLayoutGuide).offset(8)
             $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(44)
         }
@@ -61,6 +79,11 @@ final class CurationView: BaseView {
     }
 
     override func setupView() {
+        
+        topBarView.backgroundColor = .accent
+        logoImageView.image = UIImage(named: "logoname_wh")
+        logoImageView.contentMode = .scaleAspectFit
+        
         backgroundColor = .white
 
         [mainTitleLabel].forEach {

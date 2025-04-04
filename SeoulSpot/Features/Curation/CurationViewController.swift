@@ -17,7 +17,7 @@ final class CurationViewController: BaseViewController<CurationView, CurationVie
  
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationView()
+//        setupNavigationView()
         setupCollectionView()
     }
     

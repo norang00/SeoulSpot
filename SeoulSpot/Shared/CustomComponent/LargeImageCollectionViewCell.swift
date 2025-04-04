@@ -70,8 +70,13 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupView() {
-        contentView.backgroundColor = .bgGray
+//        contentView.backgroundColor = .bgGray
+
+        contentView.backgroundColor = .white
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.cornerRadius = 10
+
         imageView.layer.cornerRadius = 10
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
