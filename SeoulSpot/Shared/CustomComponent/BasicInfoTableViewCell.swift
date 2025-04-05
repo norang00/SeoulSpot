@@ -85,13 +85,13 @@ final class BasicInfoTableViewCell: UITableViewCell {
         
         locationBadge.snp.makeConstraints {
             $0.top.equalTo(borderView).inset(12)
-            $0.leading.equalTo(categoryBadge.snp.trailing).offset(8)
+            $0.leading.equalTo(categoryBadge.snp.trailing).offset(6)
             $0.height.equalTo(20)
         }
         
         isFreeBadge.snp.makeConstraints {
             $0.top.equalTo(borderView).inset(12)
-            $0.leading.equalTo(locationBadge.snp.trailing).offset(8)
+            $0.leading.equalTo(locationBadge.snp.trailing).offset(6)
             $0.height.equalTo(20)
         }
         
