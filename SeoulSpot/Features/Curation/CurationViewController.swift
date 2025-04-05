@@ -34,17 +34,29 @@ final class CurationViewController: BaseViewController<CurationView, CurationVie
         viewModel.$mainItems
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                self?.mainView.mainCollectionView.reloadData()
+                self?.curationView.mainCollectionView.reloadData()
             }
             .store(in: &cancellables)
         
-        viewModel.$subItems
+        viewModel.$sub1Items
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                self?.mainView.subCollectionView.reloadData()
+                self?.curationView.sub1CollectionView.reloadData()
             }
             .store(in: &cancellables)
-    }
+
+        viewModel.$sub2Items
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.curationView.sub2CollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+        viewModel.$sub3Items
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.curationView.sub3CollectionView.reloadData()
+            }
+            .store(in: &cancellables)    }
 }
 
 extension CurationViewController {
@@ -68,22 +80,34 @@ extension CurationViewController {
 extension CurationViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
 
     private func setupCollectionView() {
-        mainView.mainCollectionView.isPagingEnabled = true
-        mainView.mainCollectionView.delegate = self
-        mainView.mainCollectionView.dataSource = self
-        mainView.mainCollectionView.register(LargeImageCollectionViewCell.self, forCellWithReuseIdentifier: LargeImageCollectionViewCell.identifier)
+        curationView.mainCollectionView.isPagingEnabled = true
+        curationView.mainCollectionView.delegate = self
+        curationView.mainCollectionView.dataSource = self
+        curationView.mainCollectionView.register(LargeImageCollectionViewCell.self, forCellWithReuseIdentifier: LargeImageCollectionViewCell.identifier)
 
-        mainView.subCollectionView.delegate = self
-        mainView.subCollectionView.dataSource = self
-        mainView.subCollectionView.register(SmallImageCollectionViewCell.self, forCellWithReuseIdentifier: SmallImageCollectionViewCell.identifier)
+        curationView.sub1CollectionView.delegate = self
+        curationView.sub1CollectionView.dataSource = self
+        curationView.sub1CollectionView.register(SmallImageCollectionViewCell.self, forCellWithReuseIdentifier: SmallImageCollectionViewCell.identifier)
+
+        curationView.sub2CollectionView.delegate = self
+        curationView.sub2CollectionView.dataSource = self
+        curationView.sub2CollectionView.register(SmallImageCollectionViewCell.self, forCellWithReuseIdentifier: SmallImageCollectionViewCell.identifier)
+
+        curationView.sub3CollectionView.delegate = self
+        curationView.sub3CollectionView.dataSource = self
+        curationView.sub3CollectionView.register(SmallImageCollectionViewCell.self, forCellWithReuseIdentifier: SmallImageCollectionViewCell.identifier)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch collectionView {
-        case mainView.mainCollectionView:
+        case curationView.mainCollectionView:
             return viewModel.mainItems.count
-        case mainView.subCollectionView:
-            return viewModel.subItems.count
+        case curationView.sub1CollectionView:
+            return viewModel.sub1Items.count
+        case curationView.sub2CollectionView:
+            return viewModel.sub2Items.count
+        case curationView.sub3CollectionView:
+            return viewModel.sub3Items.count
         default:
             return 0
         }
@@ -94,18 +118,30 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
         let event: CulturalEventModel
 
         switch collectionView {
-        case mainView.mainCollectionView:
+        case curationView.mainCollectionView:
             let mainCell = collectionView.dequeueReusableCell(withReuseIdentifier: LargeImageCollectionViewCell.identifier, for: indexPath) as! LargeImageCollectionViewCell
             event = viewModel.mainItems[indexPath.item]
             mainCell.configure(with: event)
             cell = mainCell
 
-        case mainView.subCollectionView:
+        case curationView.sub1CollectionView:
             let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallImageCollectionViewCell.identifier, for: indexPath) as! SmallImageCollectionViewCell
-            event = viewModel.subItems[indexPath.item]
+            event = viewModel.sub1Items[indexPath.item]
            subCell.configure(with: event)
             cell = subCell
-            
+
+        case curationView.sub2CollectionView:
+            let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallImageCollectionViewCell.identifier, for: indexPath) as! SmallImageCollectionViewCell
+            event = viewModel.sub2Items[indexPath.item]
+           subCell.configure(with: event)
+            cell = subCell
+
+        case curationView.sub3CollectionView:
+            let subCell = collectionView.dequeueReusableCell(withReuseIdentifier: SmallImageCollectionViewCell.identifier, for: indexPath) as! SmallImageCollectionViewCell
+            event = viewModel.sub3Items[indexPath.item]
+           subCell.configure(with: event)
+            cell = subCell
+
         default:
             return UICollectionViewCell()
         }
@@ -117,10 +153,14 @@ extension CurationViewController: UICollectionViewDelegate, UICollectionViewData
         let selectedEvent: CulturalEventModel
 
         switch collectionView {
-        case mainView.mainCollectionView:
+        case curationView.mainCollectionView:
             selectedEvent = viewModel.mainItems[indexPath.item]
-        case mainView.subCollectionView:
-            selectedEvent = viewModel.subItems[indexPath.item]
+        case curationView.sub1CollectionView:
+            selectedEvent = viewModel.sub1Items[indexPath.item]
+        case curationView.sub2CollectionView:
+            selectedEvent = viewModel.sub2Items[indexPath.item]
+        case curationView.sub3CollectionView:
+            selectedEvent = viewModel.sub3Items[indexPath.item]
         default:
             return
         }

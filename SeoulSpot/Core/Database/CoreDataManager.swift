@@ -11,24 +11,41 @@ import UIKit
 final class CoreDataManager {
     
     static let shared = CoreDataManager()
-
+    
     private init() { }
+   
+    // Core Data stack
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "SeoulSpot")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
+    lazy var context: NSManagedObjectContext = {
+        return persistentContainer.viewContext
+    }()
 
-    lazy var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
-    private func saveContext() {
+    // Core Data Saving support
+    func saveContext(completionHandler: (() -> Void)? = nil) {
         if context.hasChanges {
             do {
                 try context.save()
-                print("CoreData 저장 완료")
+                completionHandler?()
             } catch {
-                print("CoreData 저장 실패: \(error.localizedDescription)")
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }
-    
-    // MARK: - CulturalEvent
-    
+}
+
+// MARK: - CulturalEvent CRUD
+
+extension CoreDataManager {
     // DTO → CoreDataEntity 매핑 및 저장
     func saveEventBatch(_ events: [CulturalEvent]) {
         events.forEach { event in
@@ -58,12 +75,9 @@ final class CoreDataManager {
             entity.uniqueKey = "\(event.title)-\(event.date)"
         }
         
-        do {
-            try context.save()
+        saveContext {
             AppDataTracker.shared.updateLastFetchedDate()
             print("이벤트 \(events.count)건 저장 완료")
-        } catch {
-            print("저장 실패: \(error)")
         }
     }
     
@@ -96,49 +110,26 @@ final class CoreDataManager {
         
         saveContext()
     }
-
-    func fetchAllEvents() -> [CulturalEventModel] {
-        let request: NSFetchRequest<CulturalEventEntity> = CulturalEventEntity.fetchRequest()
-        do {
-            let entities = try context.fetch(request)
-            let events = entities.compactMap { $0.toModel() }
-            return events
-        } catch {
-            return []
-        }
-    }
     
-    func fetchEvents(startingFrom start: Date, to end: Date) -> [CulturalEventModel] {
+    func fetchEvents(predicate: NSPredicate? = nil,
+                     sortDescriptors: [NSSortDescriptor] = [NSSortDescriptor(key: "startDate", ascending: true)]) -> [CulturalEventModel] {
+        
         let request: NSFetchRequest<CulturalEventEntity> = CulturalEventEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "startDate >= %@ AND startDate <= %@", start as NSDate, end as NSDate)
-
-        print(#function, start, end)
-        dump(request.predicate)
+        request.predicate = predicate
+        request.sortDescriptors = sortDescriptors
         
         do {
-            let entities = try context.fetch(request)
-            let events = entities.compactMap { $0.toModel() }
-            print(#function, "do", events)
-            return events
+            return try context.fetch(request).compactMap { $0.toModel() }
         } catch {
-            print("fetchMainEvents 실패: \(error)")
+            print("fetchEvents 실패:", error)
             return []
         }
     }
     
-    func fetchEvents(codeName: String) -> [CulturalEventModel] {
-        let request: NSFetchRequest<CulturalEventEntity> = CulturalEventEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "codeName == %@", codeName)
-
-        do {
-            let entities = try context.fetch(request)
-            let events = entities.compactMap { $0.toModel() }
-            print(events.prefix(5))
-            return events
-        } catch {
-            print("fetchEvents(codeName:) 실패: \(error)")
-            return []
-        }
+    func fetchEvents(with filters: [FilterOption]) -> [CulturalEventModel] {
+        let predicates = filters.map { $0.predicate }
+        let compound = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        return fetchEvents(predicate: compound)
     }
     
     func deleteAllEvents() {
@@ -156,7 +147,7 @@ final class CoreDataManager {
     func deleteEvent(_ event: CulturalEventModel) {
         let request: NSFetchRequest<CulturalEventEntity> = CulturalEventEntity.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", event.title ?? "")
-
+        
         do {
             let results = try context.fetch(request)
             results.forEach { context.delete($0) }
@@ -166,8 +157,11 @@ final class CoreDataManager {
             print("Delete error: \(error)")
         }
     }
-    
-    // MARK: - Pin
+}
+
+// MARK: - PinEvent CRUD
+
+extension CoreDataManager {
     
     func fetchPinnedEvents() -> [CulturalEventModel] {
         let request: NSFetchRequest<PinnedEventEntity> = PinnedEventEntity.fetchRequest()
@@ -183,7 +177,7 @@ final class CoreDataManager {
     
     func isEventPinned(_ event: CulturalEventModel) -> Bool {
         let request: NSFetchRequest<PinnedEventEntity> = PinnedEventEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "uniqueKey == %@", "\(event.title)-\(event.date)")
+        request.predicate = NSPredicate(format: "uniqueKey == %@", "\(event.title ?? "")-\(event.date ?? "")")
 
         do {
             return try !context.fetch(request).isEmpty
@@ -218,14 +212,14 @@ final class CoreDataManager {
         pinned.lat = event.lat ?? 0
         pinned.isFree = event.isFree
         pinned.homepage = event.homepage
-        pinned.uniqueKey = "\(event.title)-\(event.date)"
+        pinned.uniqueKey = "\(event.title ?? "")-\(event.date ?? "")"
 
         saveContext()
     }
     
     func unpinEvent(_ event: CulturalEventModel) {
         let fetchRequest: NSFetchRequest<PinnedEventEntity> = PinnedEventEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "uniqueKey == %@", "\(event.title)-\(event.date)")
+        fetchRequest.predicate = NSPredicate(format: "uniqueKey == %@", "\(event.title ?? "")-\(event.date ?? "")")
 
         do {
             let result = try context.fetch(fetchRequest)
@@ -236,4 +230,32 @@ final class CoreDataManager {
         }
     }
     
+}
+
+// MARK: - FilterOption
+
+enum FilterOption {
+    case codeName(String)
+    case dateRange(Date, Date)
+    case guName(String)
+    case isFree
+    case place(String)
+    case target(String)
+    
+    var predicate: NSPredicate {
+        switch self {
+        case .codeName(let name):
+            return NSPredicate(format: "codeName CONTAINS[c] %@", name)
+        case .dateRange(let from, let to):
+            return NSPredicate(format: "startDate >= %@ AND startDate <= %@", from as NSDate, to as NSDate)
+        case .guName(let gu):
+            return NSPredicate(format: "guName CONTAINS[c] %@", gu)
+        case .isFree:
+            return NSPredicate(format: "isFree CONTAINS[c] %@", "무료")
+        case .place(let keyword):
+            return NSPredicate(format: "place CONTAINS[c] %@", keyword)
+        case .target(let keyword):
+            return NSPredicate(format: "useTarget CONTAINS[c] %@", keyword)
+        }
+    }
 }

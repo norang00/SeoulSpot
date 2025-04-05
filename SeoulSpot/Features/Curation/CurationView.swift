@@ -10,14 +10,23 @@ import SnapKit
 
 final class CurationView: BaseView {
     
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    
     let topBarView = UIView()
     let logoImageView = UIImageView()
     
     let mainTitleLabel = UILabel()
     let mainCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    let subTitleLabel = UILabel()
-    let subCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let sub1TitleLabel = UILabel()
+    let sub1CollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    let sub2TitleLabel = UILabel()
+    let sub2CollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    let sub3TitleLabel = UILabel()
+    let sub3CollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     let emptyView = UIView()
     
@@ -25,17 +34,25 @@ final class CurationView: BaseView {
         addSubview(topBarView)
         topBarView.addSubview(logoImageView)
         
-        addSubview(mainTitleLabel)
-        addSubview(mainCollectionView)
+        addSubview(scrollView)
+        scrollView.addSubview(contentView)
         
-        addSubview(subTitleLabel)
-        addSubview(subCollectionView)
+        contentView.addSubview(mainTitleLabel)
+        contentView.addSubview(mainCollectionView)
         
-        addSubview(emptyView)
+        contentView.addSubview(sub1TitleLabel)
+        contentView.addSubview(sub1CollectionView)
+        
+        contentView.addSubview(sub2TitleLabel)
+        contentView.addSubview(sub2CollectionView)
+        
+        contentView.addSubview(sub3TitleLabel)
+        contentView.addSubview(sub3CollectionView)
+        
+        contentView.addSubview(emptyView)
     }
     
     override func setupLayout() {
-        
         topBarView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(safeAreaLayoutGuide.snp.top)
@@ -47,34 +64,71 @@ final class CurationView: BaseView {
             $0.height.equalTo(20)
         }
         
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(topBarView.snp.bottom)
+            $0.horizontalEdges.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints {
+            $0.edges.equalTo(scrollView)
+            $0.width.equalTo(scrollView)
+            $0.bottom.equalTo(emptyView.snp.bottom)
+        }
+        
         mainTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(safeAreaLayoutGuide).offset(8)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.top.equalTo(contentView).offset(8)
+            $0.leading.trailing.equalTo(contentView).inset(16)
             $0.height.equalTo(44)
         }
         
         mainCollectionView.snp.makeConstraints {
             $0.top.equalTo(mainTitleLabel.snp.bottom)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.trailing.equalTo(contentView)
             $0.height.equalTo(390)
         }
         
-        subTitleLabel.snp.makeConstraints {
+        sub1TitleLabel.snp.makeConstraints {
             $0.top.equalTo(mainCollectionView.snp.bottom).offset(16)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.trailing.equalTo(contentView).inset(16)
             $0.height.equalTo(44)
         }
         
-        subCollectionView.snp.makeConstraints {
-            $0.top.equalTo(subTitleLabel.snp.bottom)
-            $0.leading.trailing.equalToSuperview()
+        sub1CollectionView.snp.makeConstraints {
+            $0.top.equalTo(sub1TitleLabel.snp.bottom)
+            $0.leading.trailing.equalTo(contentView)
+            $0.height.equalTo(180)
+        }
+        
+        sub2TitleLabel.snp.makeConstraints {
+            $0.top.equalTo(sub1CollectionView.snp.bottom).offset(16)
+            $0.leading.trailing.equalTo(contentView).inset(16)
+            $0.height.equalTo(44)
+        }
+        
+        sub2CollectionView.snp.makeConstraints {
+            $0.top.equalTo(sub2TitleLabel.snp.bottom)
+            $0.leading.trailing.equalTo(contentView)
+            $0.height.equalTo(180)
+        }
+        
+        sub3TitleLabel.snp.makeConstraints {
+            $0.top.equalTo(sub2CollectionView.snp.bottom).offset(16)
+            $0.leading.trailing.equalTo(contentView).inset(16)
+            $0.height.equalTo(44)
+        }
+        
+        sub3CollectionView.snp.makeConstraints {
+            $0.top.equalTo(sub3TitleLabel.snp.bottom)
+            $0.leading.trailing.equalTo(contentView)
             $0.height.equalTo(180)
         }
         
         emptyView.snp.makeConstraints {
-            $0.top.equalTo(subCollectionView.snp.bottom)
-            $0.horizontalEdges.equalToSuperview()
-            $0.bottom.equalTo(safeAreaLayoutGuide)
+            $0.top.equalTo(sub3CollectionView.snp.bottom)
+            $0.horizontalEdges.equalTo(contentView)
+            $0.height.greaterThanOrEqualTo(16)
+            $0.bottom.equalTo(contentView)
         }
     }
     
@@ -92,23 +146,26 @@ final class CurationView: BaseView {
             $0.backgroundColor = .clear
         }
         
-        [subTitleLabel].forEach {
+        [sub1TitleLabel, sub2TitleLabel, sub3TitleLabel].forEach {
             $0.font = .pretendardBold(ofSize: 18)
             $0.textColor = .label
             $0.backgroundColor = .clear
         }
         
         mainTitleLabel.text = "곧 다가오는 행사✨"
-        subTitleLabel.text = "전시/미술 관련 행사🎨"
+        sub1TitleLabel.text = "전시/미술 관련 행사🎨"
+        sub2TitleLabel.text = "코엑스에서 하는 행사🏬"
+        sub3TitleLabel.text = "무료 행사👀"
         
         [mainCollectionView].forEach {
             $0.showsHorizontalScrollIndicator = false
             $0.collectionViewLayout = createMainLayout()
             $0.alwaysBounceVertical = false
             $0.isPagingEnabled = true
+            $0.isScrollEnabled = true
         }
         
-        [subCollectionView].forEach {
+        [sub1CollectionView, sub2CollectionView, sub3CollectionView].forEach {
             $0.showsHorizontalScrollIndicator = false
             $0.collectionViewLayout = createSubLayout()
         }
