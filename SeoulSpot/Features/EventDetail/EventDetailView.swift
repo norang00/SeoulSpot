@@ -17,11 +17,12 @@ final class EventDetailView: BaseView {
     private let posterImageView = UIImageView()
     private var posterImageViewHeightConstraint: Constraint?
     
-    private let pinButton = UIButton(type: .system)
-    var onPinTapped: (() -> Void)?
+    private let titleStackView = UIStackView()
 
     private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
+
+    private let pinButton = UIButton(type: .system)
+    var onPinTapped: (() -> Void)?
 
     private let infoStackView = UIStackView()
 
@@ -38,7 +39,7 @@ final class EventDetailView: BaseView {
     private let targetValueLabel = UILabel()
 
     private let feeTitleLabel = UILabel()
-    private let feeValueLabel = UILabel() // [TODO] 요금 값이 제대로 안들어가고 있음
+    private let feeValueLabel = UILabel()
     
     private let playerTitleLabel = UILabel()
     private let playerValueLabel = UILabel()
@@ -52,12 +53,16 @@ final class EventDetailView: BaseView {
     private let linkButton = UIButton(type: .system)
         
     override func setupHierarchy() {
-        
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [posterImageView, pinButton,
-         titleLabel, subtitleLabel, linkButton].forEach {
+        titleStackView.addArrangedSubview(titleLabel)
+        titleStackView.addArrangedSubview(pinButton)
+        titleStackView.axis = .horizontal
+        titleStackView.distribution = .fill
+        
+        [posterImageView,
+         titleStackView, linkButton].forEach {
             contentView.addSubview($0)
         }
         
@@ -85,14 +90,15 @@ final class EventDetailView: BaseView {
     }
     
     override func setupLayout() {
-
         scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.horizontalEdges.equalTo(safeAreaLayoutGuide)
+            $0.verticalEdges.equalToSuperview()
         }
-
+        
         contentView.snp.makeConstraints {
             $0.edges.equalTo(scrollView)
             $0.width.equalTo(scrollView)
+            $0.bottom.equalTo(linkButton.snp.bottom)
         }
         
         posterImageView.snp.makeConstraints {
@@ -101,26 +107,17 @@ final class EventDetailView: BaseView {
             self.posterImageViewHeightConstraint = $0.height.equalTo(100).constraint
         }
         
-        titleLabel.snp.makeConstraints {
+        titleStackView.snp.makeConstraints {
             $0.top.equalTo(posterImageView.snp.bottom).offset(16)
-            $0.leading.equalTo(contentView).inset(20)
-            $0.trailing.lessThanOrEqualTo(pinButton.snp.leading).offset(-10)
+            $0.leading.trailing.equalTo(contentView).inset(20)
         }
 
         pinButton.snp.makeConstraints {
-            $0.centerY.equalTo(titleLabel)
-            $0.trailing.equalTo(contentView).inset(10)
-            $0.width.equalTo(30)
-            $0.height.equalTo(titleLabel)
-        }
-
-        subtitleLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalTo(contentView).inset(20)
+            $0.size.equalTo(30)
         }
         
         infoStackView.snp.makeConstraints {
-            $0.top.equalTo(subtitleLabel.snp.bottom).offset(10)
+            $0.top.equalTo(titleStackView.snp.bottom).offset(8)
             $0.leading.trailing.equalTo(contentView).inset(20)
         }
 
@@ -137,17 +134,12 @@ final class EventDetailView: BaseView {
         posterImageView.contentMode = .scaleAspectFit
 
         titleLabel.font = .pretendardBold(ofSize: 20)
-        titleLabel.numberOfLines = 2
-        titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.numberOfLines = 0
+        titleLabel.adjustsFontSizeToFitWidth = true // [TODO] 글자 크기 줄이지 않으면서 2줄로 늘이는 방법 고민
         
         pinButton.setImage(UIImage(systemName: "pin"), for: .normal)
         pinButton.tintColor = .systemOrange
         pinButton.addTarget(self, action: #selector(pinTapped), for: .touchUpInside)
-
-        [subtitleLabel].forEach {
-            $0.font = .pretendardRegular(ofSize: 14)
-            $0.numberOfLines = 0
-        }
         
         [categoryTitleLabel, dateTitleLabel, placeTitleLabel, targetTitleLabel, feeTitleLabel,
          playerTitleLabel, programTitleLabel, descriptionTitleLabel].forEach {
@@ -179,9 +171,8 @@ final class EventDetailView: BaseView {
     func configure(with event: CulturalEventModel, _ isPinned: Bool) {
         categoryValueLabel.text = event.codeName.orDash
         titleLabel.text = event.title.orDash
-        subtitleLabel.text = "\(event.orgName.orDash) · \(event.guName.orDash)"
         dateValueLabel.text = event.date.orDash
-        placeValueLabel.text = event.place.orDash
+        placeValueLabel.text = "\(event.guName.orDash) \(event.place.orDash)"
         targetValueLabel.text = event.useTarget ?? "누구나"
         feeValueLabel.text = event.useFee.orDash
         playerValueLabel.text = event.player.orDash

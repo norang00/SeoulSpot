@@ -134,6 +134,7 @@ extension CoreDataManager {
     
     func deleteAllEvents() {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CulturalEventEntity.fetchRequest()
+//        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CulturalEventEntity")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         
         do {

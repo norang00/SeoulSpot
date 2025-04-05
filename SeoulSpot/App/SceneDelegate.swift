@@ -57,22 +57,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 extension SceneDelegate {
     
     func initData(completionHandler: @escaping () -> Void) {
+
+        // Core Data 스택이 초기화되었는지 확인하기 위해 context에 접근
+        let _ = CoreDataManager.shared.context
+
         if AppDataTracker.shared.shouldRefreshEventData() {
             NetworkManager.shared.callRequestToAPIServer(.culturalEvents(option: .init(startIndex: 1, endIndex: 300)), CulturalEventResponse.self) { result in
                 switch result {
                 case .success(let success):
                     let events = success.culturalEventInfo.row
-                    CoreDataManager.shared.deleteAllEvents()
-                    CoreDataManager.shared.saveEventBatch(events)
+                    // Core Data 작업을 메인 스레드에서 수행
                     DispatchQueue.main.async {
-                        completionHandler()
+                        CoreDataManager.shared.deleteAllEvents()
+                        CoreDataManager.shared.saveEventBatch(events)
+                        completionHandler() // 데이터 로딩 후 앱 시작
                     }
                 case .failure(let failure):
-                    print("failed to init data", failure.localizedDescription)
+                    print("Failed to init data", failure.localizedDescription)
+                    // 실패해도 앱을 시작하거나 재시도 로직 추가
+                    DispatchQueue.main.async {
+                        // 에러 처리 후 앱 시작 또는 에러 화면 표시
+                        completionHandler()
+                    }
                 }
             }
         } else {
-            print("use saved data in CoreData")
+            print("Using saved data in CoreData")
+            // 저장된 데이터가 있으므로 바로 앱 시작
             completionHandler()
         }
     }
