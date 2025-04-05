@@ -25,6 +25,9 @@ final class EventDetailView: BaseView {
 
     private let infoStackView = UIStackView()
 
+    private let categoryTitleLabel = UILabel()
+    private let categoryValueLabel = UILabel()
+    
     private let dateTitleLabel = UILabel()
     private let dateValueLabel = UILabel()
 
@@ -35,11 +38,17 @@ final class EventDetailView: BaseView {
     private let targetValueLabel = UILabel()
 
     private let feeTitleLabel = UILabel()
-    private let feeValueLabel = UILabel()
-
-    private let categoryTitleLabel = UILabel()
-    private let categoryValueLabel = UILabel()
+    private let feeValueLabel = UILabel() // [TODO] 요금 값이 제대로 안들어가고 있음
     
+    private let playerTitleLabel = UILabel()
+    private let playerValueLabel = UILabel()
+
+    private let programTitleLabel = UILabel()
+    private let programValueLabel = UILabel()
+
+    private let descriptionTitleLabel = UILabel()
+    private let descriptionValueLabel = UILabel()
+
     private let linkButton = UIButton(type: .system)
         
     override func setupHierarchy() {
@@ -52,21 +61,25 @@ final class EventDetailView: BaseView {
             contentView.addSubview($0)
         }
         
+        let categoryRow = UIStackView(arrangedSubviews: [categoryTitleLabel, categoryValueLabel])
         let dateRow = UIStackView(arrangedSubviews: [dateTitleLabel, dateValueLabel])
         let placeRow = UIStackView(arrangedSubviews: [placeTitleLabel, placeValueLabel])
         let targetRow = UIStackView(arrangedSubviews: [targetTitleLabel, targetValueLabel])
         let feeRow = UIStackView(arrangedSubviews: [feeTitleLabel, feeValueLabel])
-        let categoryRow = UIStackView(arrangedSubviews: [categoryTitleLabel, categoryValueLabel])
+        let playerRow = UIStackView(arrangedSubviews: [playerTitleLabel, playerValueLabel])
+        let programRow = UIStackView(arrangedSubviews: [programTitleLabel, programValueLabel])
+        let descriptionRow = UIStackView(arrangedSubviews: [descriptionTitleLabel, descriptionValueLabel])
         
-        [dateRow, placeRow, targetRow, feeRow, categoryRow].forEach {
+        [categoryRow, dateRow, placeRow, targetRow, feeRow, playerRow, programRow, descriptionRow].forEach {
             $0.axis = .horizontal
             $0.spacing = 8
             $0.distribution = .fillProportionally
+            $0.alignment = .top
             infoStackView.addArrangedSubview($0)
         }
         
         infoStackView.axis = .vertical
-        infoStackView.spacing = 12
+        infoStackView.spacing = 10
         
         contentView.addSubview(infoStackView)
     }
@@ -136,7 +149,8 @@ final class EventDetailView: BaseView {
             $0.numberOfLines = 0
         }
         
-        [dateTitleLabel, placeTitleLabel, targetTitleLabel, feeTitleLabel, categoryTitleLabel].forEach {
+        [categoryTitleLabel, dateTitleLabel, placeTitleLabel, targetTitleLabel, feeTitleLabel,
+         playerTitleLabel, programTitleLabel, descriptionTitleLabel].forEach {
             $0.textColor = .secondaryLabel
             $0.font = .pretendardMedium(ofSize: 14)
             $0.setContentHuggingPriority(.required, for: .horizontal)
@@ -144,27 +158,35 @@ final class EventDetailView: BaseView {
             $0.snp.makeConstraints { $0.width.equalTo(60) }
         }
 
-        [dateValueLabel, placeValueLabel, targetValueLabel, feeValueLabel, categoryValueLabel].forEach {
+        [categoryValueLabel, dateValueLabel, placeValueLabel, targetValueLabel, feeValueLabel,
+         playerValueLabel, programValueLabel, descriptionValueLabel].forEach {
             $0.font = .pretendardRegular(ofSize: 14)
             $0.textColor = .label
+            $0.numberOfLines = 0
         }
 
+        categoryTitleLabel.text = "카테고리"
         dateTitleLabel.text = "기간"
         placeTitleLabel.text = "장소"
         targetTitleLabel.text = "대상"
         feeTitleLabel.text = "요금"
-        categoryTitleLabel.text = "카테고리"
+        playerTitleLabel.text = "시행" // [TODO] 워딩 고민..
+        programTitleLabel.text = "프로그램" // [TODO] 워딩 고민..
+        descriptionTitleLabel.text = "부가 설명" // [TODO] 워딩 고민..
         linkButton.setTitle("공식 홈페이지 바로가기", for: .normal)
     }
 
     func configure(with event: CulturalEventModel, _ isPinned: Bool) {
-        titleLabel.text = event.title
-        subtitleLabel.text = "\(event.orgName ?? "") · \(event.guName ?? "")"
-        dateValueLabel.text = event.date
-        placeValueLabel.text = event.place
+        categoryValueLabel.text = event.codeName.orDash
+        titleLabel.text = event.title.orDash
+        subtitleLabel.text = "\(event.orgName.orDash) · \(event.guName.orDash)"
+        dateValueLabel.text = event.date.orDash
+        placeValueLabel.text = event.place.orDash
         targetValueLabel.text = event.useTarget ?? "누구나"
-        feeValueLabel.text = ((event.useFee?.isEmpty) != nil) ? "-" : event.useFee
-        categoryValueLabel.text = event.codeName
+        feeValueLabel.text = event.useFee.orDash
+        playerValueLabel.text = event.player.orDash
+        programValueLabel.text = event.program.orDash
+        descriptionValueLabel.text = event.etcDesc.orDash
         
         if let url = URL(string: event.mainImage ?? "") {
             posterImageView.loadImage(from: url) { [weak self] image in
