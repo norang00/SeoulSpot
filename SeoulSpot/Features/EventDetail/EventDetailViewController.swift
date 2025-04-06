@@ -14,7 +14,7 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
         super.viewDidLoad()
         
         setupNavigationView()
-        curationView.configure(with: viewModel.event, viewModel.isPinned)
+        baseView.configure(with: viewModel.event, viewModel.isPinned)
     }
     
     override func bindViewModel() {
@@ -31,11 +31,11 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
         viewModel.$isPinned
             .receive(on: RunLoop.main)
             .sink { [weak self] isPinned in
-                self?.curationView.updatePinState(isPinned: isPinned)
+                self?.baseView.updatePinState(isPinned: isPinned)
             }
             .store(in: &cancellables)
         
-        curationView.onPinTapped = { [weak self] in
+        baseView.onPinTapped = { [weak self] in
             self?.viewModel.togglePin()
         }
     }

@@ -44,7 +44,7 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
         viewModel.$pinnedEvents
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                self?.curationView.tableView.reloadData()
+                self?.baseView.tableView.reloadData()
             }
             .store(in: &cancellables)
     }
@@ -53,9 +53,9 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
 extension PinnedViewController: UITableViewDelegate, UITableViewDataSource {
     
     private func setupTableView() {
-        curationView.tableView.delegate = self
-        curationView.tableView.dataSource = self
-        curationView.tableView.register(BasicInfoTableViewCell.self, forCellReuseIdentifier: BasicInfoTableViewCell.identifier)
+        baseView.tableView.delegate = self
+        baseView.tableView.dataSource = self
+        baseView.tableView.register(BasicInfoTableViewCell.self, forCellReuseIdentifier: BasicInfoTableViewCell.identifier)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -11,7 +11,7 @@ import Combine
 class BaseViewController<ViewType: BaseView, ViewModelType: BaseViewModel>: UIViewController {
     
     // MARK: - View
-    var curationView: ViewType {
+    var baseView: ViewType {
         guard let view = self.view as? ViewType else {
             fatalError("\(ViewType.self) 타입 캐스팅 실패")
         }

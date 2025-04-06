@@ -133,7 +133,6 @@ final class CurationView: BaseView {
     }
     
     override func setupView() {
-        
         topBarView.backgroundColor = .accent
         logoImageView.image = UIImage(named: "logoname_wh")
         logoImageView.contentMode = .scaleAspectFit
