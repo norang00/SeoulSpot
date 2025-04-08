@@ -153,7 +153,7 @@ final class CurationView: BaseView {
         
         mainTitleLabel.text = "곧 다가오는 행사✨"
         sub1TitleLabel.text = "전시/미술 관련 행사🎨"
-        sub2TitleLabel.text = "코엑스에서 하는 행사🏬"
+        sub2TitleLabel.text = "강남구에서 하는 행사📍"
         sub3TitleLabel.text = "무료 행사👀"
         
         [mainCollectionView].forEach {
