@@ -11,7 +11,7 @@ final class CurationViewModel: BaseViewModel {
     
     @Published var mainItems: [CulturalEventModel] = [] // 2주 내 시작 이벤트
     @Published var sub1Items: [CulturalEventModel] = [] // [전시/미술] 테마 이벤트
-    @Published var sub2Items: [CulturalEventModel] = [] // [코엑스] 테마 이벤트
+    @Published var sub2Items: [CulturalEventModel] = [] // [강남구] 테마 이벤트
     @Published var sub3Items: [CulturalEventModel] = [] // [무료] 테마 이벤트
 
     override init() {
