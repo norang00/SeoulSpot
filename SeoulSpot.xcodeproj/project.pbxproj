@@ -111,10 +111,10 @@
 				};
 			};
 			buildConfigurationList = EE15AC112D9A745100D2A1B9 /* Build configuration list for PBXProject "SeoulSpot" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
+				ko,
 				Base,
 			);
 			mainGroup = EE15AC0D2D9A745100D2A1B9;
