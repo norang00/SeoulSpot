@@ -30,6 +30,15 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        categoryBadge.text = ""
+        locationBadge.text = ""
+        isFreeBadge.text = ""
+        dateBadge.text = ""
+    }
+    
     private func setupHierarchy() {
         contentView.addSubview(imageView)
         contentView.addSubview(categoryBadge)
@@ -87,6 +96,7 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         categoryBadge.text = event.codeName
         locationBadge.text = event.guName
         isFreeBadge.text = event.isFree
+        isFreeBadge.backgroundColor = (event.isFree == "유료") ? .systemPink : .isFreeBadge
         
         setDateBadge(event)
     }

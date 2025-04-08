@@ -39,7 +39,7 @@ final class CurationViewModel: BaseViewModel {
         isLoading = false
     }
     
-    private func fetchSub1Events() { // [TODO] 여기 문제는 아닌 것 같긴 한데, 셀 이미지 캐시가 남아서 초반에 두개 정도 중복으로 보이거나 덮어씌워짐. 확인 필요
+    private func fetchSub1Events() {
         print(#function)
         isLoading = true
         
@@ -57,7 +57,7 @@ final class CurationViewModel: BaseViewModel {
         isLoading = true
 
         let filters: [FilterOption] = [
-            .place("코엑스")
+            .guName("강남")
         ]
         let filteredEvents = CoreDataManager.shared.fetchEvents(with: filters)
         sub2Items = filteredEvents.shuffled()
@@ -74,7 +74,7 @@ final class CurationViewModel: BaseViewModel {
         ]
         let filteredEvents = CoreDataManager.shared.fetchEvents(with: filters)
         sub3Items = filteredEvents.shuffled()
-
+        
         isLoading = false
     }
 
