@@ -16,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Naver SDK 설정
         NMFAuthManager.shared().ncpKeyId = Naver.clientID
+        
+        sleep(1)
 
         return true
     }
