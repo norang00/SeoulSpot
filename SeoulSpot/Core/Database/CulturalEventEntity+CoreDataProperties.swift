@@ -47,6 +47,7 @@ extension CulturalEventEntity : Identifiable {
 
 }
 
+// MARK: - API 쪽에서 lat lot 반대로 뒤집혀서 오기 때문에 매핑시에 다시 뒤집어 주겠음
 extension CulturalEventEntity {
     func toModel() -> CulturalEventModel {
         return CulturalEventModel(
@@ -68,8 +69,8 @@ extension CulturalEventEntity {
             startDate: self.startDate,
             endDate: self.endDate,
             themeCode: self.themeCode,
-            lot: self.lot,
-            lat: self.lat,
+            lot: self.lat, // 여기 고의로 반대로 넣음
+            lat: self.lot, //
             isFree: self.isFree,
             homepage: self.homepage
         )

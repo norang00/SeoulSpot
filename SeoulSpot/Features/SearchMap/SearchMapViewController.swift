@@ -17,13 +17,14 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
     
     var delegate: SearchMapViewControllerDelegate?
     
-    private var initialLocationSet = false
-    
     private let locationManager = CLLocationManager()
+    private var initialLocationSet = false
+
+    private let infoWindow = NMFInfoWindow()
+    private var markerDict: [String: NMFMarker] = [:]
+    private let customSource = CustomTextViewSource()
     
-    private var eventMarkers: [NMFMarker] = []
-    let infoWindow = NMFInfoWindow()
-    let dataSource = NMFInfoWindowDefaultTextSource.data()
+    private var lastCameraUpdateTime = Date()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,23 +55,42 @@ extension SearchMapViewController: CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+        
+        baseView.currentLocationButton.addTarget(self, action: #selector(didTapCurrentLocationButton), for: .touchUpInside)
     }
     
-    // 지도를 처음 띄웠을 때의 카메라 이동
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
         guard !initialLocationSet, let location = locations.last else { return }
         initialLocationSet = true
         
-        let lat = location.coordinate.latitude
-        let lot = location.coordinate.longitude
+        focusOnCurrentLocation(location.coordinate)
         
-        let cameraUpdate = NMFCameraUpdate(scrollTo: NMGLatLng(lat: lat, lng: lot))
+        locationManager.stopUpdatingLocation()
+    }
+    
+    @objc func didTapCurrentLocationButton() {
+        guard let currentLocation = locationManager.location else { return }
+        focusOnCurrentLocation(currentLocation.coordinate)
+    }
+    
+    private func focusOnCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
+
+        let lat = coordinate.latitude
+        let lng = coordinate.longitude
+
+        let currentLatLng = NMGLatLng(lat: lat, lng: lng)
+
+        let overlay = baseView.mapView.locationOverlay
+        overlay.location = currentLatLng
+        overlay.hidden = false
+
+        let cameraUpdate = NMFCameraUpdate(scrollTo: currentLatLng)
         cameraUpdate.animation = .easeIn
+        baseView.mapView.zoomLevel = 13.0
         baseView.mapView.moveCamera(cameraUpdate)
         
-        // Stop continuous updates after getting initial position
-        locationManager.stopUpdatingLocation()
+        fetchEventsAndUpdateMarkers(near: coordinate)
+        
     }
 }
 
@@ -82,62 +102,48 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         baseView.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         baseView.mapView.touchDelegate = self
         baseView.mapView.addCameraDelegate(delegate: self)
-        
-        // [TODO] 임시적으로 일단 모든 이벤트에 대해 처리
-        updateEventMarkers(with: viewModel.fetchAllEvents())
     }
     
     private func setupInfoView() {
         infoWindow.touchHandler = { [weak self] overlay -> Bool in
             guard let self = self else { return false }
             
-            // 현재 표시된 마커에 연결된 이벤트 찾기
             if let marker = self.infoWindow.marker,
                let event = marker.userInfo["event"] as? CulturalEventModel {
                 self.delegate?.didSelectEvent(event)
             }
-            
             return true
         }
     }
     
-    // [TODO] 지도 위치에 따른 근처 값 가지고 오기
-    //    func mapViewCameraIdle(_ mapView: NMFMapView) {
-    //        let center = baseView.mapView.cameraPosition.target
-    //        let coordinate = CLLocationCoordinate2D(latitude: center.lat, longitude: center.lng)
-    //        viewModel.fetchEvents(near: coordinate) { [weak self] events in
-    //            self?.updateEventMarkers(with: events)
-    //        }
-    //    }
-    
-    private func updateEventMarkers(with events: [CulturalEventModel]) {
-        // 기존 마커 제거
-        eventMarkers.forEach { $0.mapView = nil }
-        eventMarkers.removeAll()
+    func mapViewCameraIdle(_ mapView: NMFMapView) {
+        let now = Date()
+        guard now.timeIntervalSince(lastCameraUpdateTime) > 0.8 else { return }
+        lastCameraUpdateTime = now
         
-        for event in events {
-            let marker = NMFMarker(position: NMGLatLng(lat: event.lot ?? 0, lng: event.lat ?? 0)) // API 정보 오류 lat <-> lot
-            marker.iconImage = NMF_MARKER_IMAGE_DEFAULT
-            marker.width = 20
-            marker.height = 28
-            marker.userInfo = ["event": event]
-            marker.mapView = baseView.mapView
-            connectHandler(marker)
-            eventMarkers.append(marker)
-        }
+        let center = mapView.cameraPosition.target
+        let coordinate = CLLocationCoordinate2D(latitude: center.lat, longitude: center.lng)
+        
+        fetchEventsAndUpdateMarkers(near: coordinate)
+    }
+    
+    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
+        infoWindow.close()
     }
     
     private func connectHandler(_ marker: NMFMarker) {
         marker.touchHandler = { [weak self] overlay -> Bool in
-            guard let self = self, let marker = overlay as? NMFMarker else { return false }
+            guard let self = self, let marker = overlay as? NMFMarker,
+                  let event = marker.userInfo["event"] as? CulturalEventModel
+            else { return false }
             
-            // 데이터 소스 갱신
-            if let event = marker.userInfo["event"] as? CulturalEventModel {
-                self.dataSource.title = event.title ?? ""
-                self.infoWindow.dataSource = self.dataSource
-            }
+            self.customSource.title = event.title ?? ""
+            self.infoWindow.dataSource = self.customSource
             
-            // 열려있던 정보창이 같은 마커라면 닫기
+            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
+            cameraUpdate.animation = .easeIn
+            self.baseView.mapView.moveCamera(cameraUpdate)
+            
             if self.infoWindow.marker == marker {
                 self.infoWindow.close()
             } else {
@@ -148,8 +154,74 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         }
     }
     
-    // 지도를 탭하면 정보 창을 닫음
-    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
-        infoWindow.close()
+    private func fetchEventsAndUpdateMarkers(near coordinate: CLLocationCoordinate2D) {
+        viewModel.fetchNearByEvents(near: coordinate) { [weak self] events in
+            guard let self = self else { return }
+            self.updateEventMarkers(with: events)
+        }
+    }
+    
+    private func updateEventMarkers(with events: [CulturalEventModel]) {
+        var newMarkers: [String: NMFMarker] = [:]
+        
+        for event in events {
+            let id = "\(event.title ?? "")_\(event.lat ?? 0)_\(event.lot ?? 0)"
+            if let existingMarker = markerDict[id] {
+                newMarkers[id] = existingMarker
+                continue
+            }
+            newMarkers[id] = createMarker(for: event)
+        }
+        
+        let removedKeys = markerDict.keys.filter { newMarkers[$0] == nil }
+        for id in removedKeys {
+            markerDict[id]?.mapView = nil
+        }
+        markerDict = newMarkers
+    }
+    
+    private func createMarker(for event: CulturalEventModel) -> NMFMarker {
+        let marker = NMFMarker(position: NMGLatLng(lat: event.lat ?? 0, lng: event.lot ?? 0))
+        marker.iconImage = NMF_MARKER_IMAGE_BLACK
+        marker.iconTintColor = UIColor(red: 41/255.0, green: 120/255.0, blue: 160/255.0, alpha: 1.0)
+        marker.width = 20
+        marker.height = 28
+        marker.userInfo = ["event": event]
+        marker.mapView = baseView.mapView
+        connectHandler(marker)
+        return marker
+    }
+}
+
+final class CustomTextViewSource: NSObject, NMFOverlayImageDataSource {
+    var title: String = ""
+    
+    func view(with overlay: NMFOverlay) -> UIView {
+        let label = PaddingLabel()
+        label.text = title
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.textAlignment = .center
+        label.backgroundColor = .white
+        label.textColor = .black
+        label.layer.cornerRadius = 6
+        label.layer.borderWidth = 1
+        label.layer.borderColor = UIColor.gray.cgColor
+        label.clipsToBounds = true
+        
+        let maxWidth: CGFloat = 200
+        let horizontalPadding = label.leftInset + label.rightInset
+        let verticalPadding = label.topInset + label.bottomInset
+        
+        let fittingSize = CGSize(width: maxWidth - horizontalPadding,
+                                 height: CGFloat.greatestFiniteMagnitude)
+        let contentSize = label.sizeThatFits(fittingSize)
+        
+        let finalSize = CGSize(width: min(maxWidth, contentSize.width + horizontalPadding),
+                               height: contentSize.height + verticalPadding)
+        label.frame = CGRect(origin: .zero, size: finalSize)
+        
+        return label
     }
 }

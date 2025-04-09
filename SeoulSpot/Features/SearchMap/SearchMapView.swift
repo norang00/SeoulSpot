@@ -11,12 +11,13 @@ import NMapsMap
 class SearchMapView: BaseView {
     
     let mapView = NMFMapView(frame: .zero)
-    
+    let currentLocationButton = UIButton()
 //    let searchBackground = UIView()
 //    let searchTextField = UISearchTextField()
     
     override func setupHierarchy() {
         addSubview(mapView)
+        addSubview(currentLocationButton)
 
 //        addSubview(searchBackground)
 //        searchBackground.addSubview(searchTextField)
@@ -25,6 +26,11 @@ class SearchMapView: BaseView {
     override func setupLayout() {
         mapView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+        }
+        
+        currentLocationButton.snp.makeConstraints {
+            $0.top.leading.equalTo(safeAreaLayoutGuide).inset(16)
+            $0.size.equalTo(44)
         }
         
 //        searchBackground.snp.makeConstraints {
@@ -41,8 +47,17 @@ class SearchMapView: BaseView {
 
     override func setupView() {
         isUserInteractionEnabled = true
-        
         backgroundColor = .white
+        
+        currentLocationButton.layer.cornerRadius = 22
+        currentLocationButton.backgroundColor = .white
+        currentLocationButton.tintColor = .accent
+        currentLocationButton.setImage(UIImage(systemName: "location"), for: .normal)
+        
+        currentLocationButton.layer.shadowColor = UIColor.black.cgColor
+        currentLocationButton.layer.shadowOpacity = 0.2
+        currentLocationButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        currentLocationButton.layer.shadowRadius = 4
 
 //        searchBackground.backgroundColor = .white
 //        searchBackground.layer.borderColor = UIColor.black.cgColor
