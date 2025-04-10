@@ -178,9 +178,9 @@ final class EventDetailView: BaseView {
         playerValueLabel.text = event.player.orDash
         programValueLabel.text = event.program.orDash
         descriptionValueLabel.text = event.etcDesc.orDash
-        
+
         if let url = URL(string: event.mainImage ?? "") {
-            posterImageView.loadImage(from: url) { [weak self] image in
+            posterImageView.loadImage(from: url, placeholder: UIImage(named: "placeholder")) { [weak self] image in
                 guard let self = self, let image = image else { return }
 
                 let width = UIScreen.main.bounds.width
