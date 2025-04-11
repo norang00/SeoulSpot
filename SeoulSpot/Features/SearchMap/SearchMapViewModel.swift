@@ -11,7 +11,7 @@ import CoreLocation
 final class SearchMapViewModel: BaseViewModel {
     
     private var allEvents: [CulturalEventModel]
-
+    
     init(allEvents: [CulturalEventModel] = CoreDataManager.shared.fetchEvents()) {
         self.allEvents = allEvents
         super.init()
@@ -33,4 +33,19 @@ final class SearchMapViewModel: BaseViewModel {
         }
         completion(nearbyEvents)
     }
+    
+    func fetchFilteredEvents(filters: FilterSelection,
+                             completion: @escaping ([CulturalEventModel]) -> Void) {
+        let filteredEvents = allEvents.filter { event in
+            let matchesCategories = filters.categories.isEmpty || filters.categories.contains(EventCategory(rawValue: event.codeName!) ?? .unknown)
+            let matchesDistricts = filters.districts.isEmpty || filters.districts.contains(District(rawValue: event.guName!) ?? .unknown)
+            let matchesPrices = filters.prices.isEmpty || filters.prices.contains(PriceType(rawValue: event.isFree!) ?? .unknown
+            )
+            let matchesAudiences = filters.audiences.isEmpty || filters.audiences.contains(AudienceTarget(rawValue: event.useTarget!) ?? .unknown)
+
+            return matchesCategories && matchesDistricts && matchesPrices && matchesAudiences
+        }
+        completion(filteredEvents)
+    }
+    
 }
