@@ -33,6 +33,12 @@ struct CulturalEventModel {
 }
 
 extension CulturalEventModel {
+    var id: String {
+        return "\(title ?? "")_\(lat ?? 0)_\(lot ?? 0)"
+    }
+}
+
+extension CulturalEventModel {
     var isEnded: Bool {
         guard let end = self.endDate else { return false }
         return end < Date()

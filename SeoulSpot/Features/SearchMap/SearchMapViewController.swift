@@ -21,15 +21,32 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
     private let locationManager = CLLocationManager()
     
     private let infoWindow = NMFInfoWindow()
-    private var markerDict: [String: NMFMarker] = [:]
+    private var markerDict: [String: NMFMarker] = [:] {
+        didSet {
+            self.searchResults = markerDict.values.compactMap {
+                $0.userInfo["event"] as? CulturalEventModel
+            }
+            baseView.resultCollectionView.reloadData()
+        }
+    }
     private let customSource = CustomTextViewSource()
     
     private var lastCameraUpdateTime = Date()
+    
+    private enum CameraMoveContext {
+        case user
+        case searchResult
+        case markerTap
+        case collectionViewScroll
+    }
+
+    private var currentCameraMoveContext: CameraMoveContext = .user
     
     private var currentFilters = FilterSelection(categories: [], districts: [], prices: [], audiences: [])
     private var searchResults: [CulturalEventModel] = []
     
     override func viewDidLoad() {
+        print(#function)
         super.viewDidLoad()
         requestLocationAccess()
         
@@ -83,6 +100,7 @@ extension SearchMapViewController: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print(#function)
         guard !initialLocationSet, let location = locations.last else { return }
         initialLocationSet = true
         focusOnCurrentLocation(location.coordinate)
@@ -90,7 +108,7 @@ extension SearchMapViewController: CLLocationManagerDelegate {
     }
     
     private func focusOnCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
-        
+        print(#function)
         let lat = coordinate.latitude
         let lng = coordinate.longitude
         let currentLatLng = NMGLatLng(lat: lat, lng: lng)
@@ -99,9 +117,9 @@ extension SearchMapViewController: CLLocationManagerDelegate {
         overlay.location = currentLatLng
         overlay.hidden = false
         
-        let cameraUpdate = NMFCameraUpdate(scrollTo: currentLatLng)
+        let cameraUpdate = NMFCameraUpdate(scrollTo: currentLatLng, zoomTo: 13)
         cameraUpdate.animation = .easeIn
-        baseView.mapView.zoomLevel = 13.0
+//        baseView.mapView.zoomLevel = 13.0
         baseView.mapView.moveCamera(cameraUpdate)
         
         fetchEventsAndUpdateMarkers(near: coordinate)
@@ -112,6 +130,7 @@ extension SearchMapViewController: CLLocationManagerDelegate {
 extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDelegate {
     
     private func setupMapView() {
+        print(#function)
         baseView.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         baseView.mapView.touchDelegate = self
         baseView.mapView.addCameraDelegate(delegate: self)
@@ -140,6 +159,7 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
     }
     
     private func makeMarkerTouchHandler(for marker: NMFMarker) -> ((NMFOverlay) -> Bool) {
+        print(#function)
         return { [weak self] overlay in
             guard let self = self, let marker = overlay as? NMFMarker,
                   let event = marker.userInfo["event"] as? CulturalEventModel else {
@@ -148,16 +168,17 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
 
             self.customSource.title = event.title ?? ""
             self.infoWindow.dataSource = self.customSource
-
-            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
-            cameraUpdate.animation = .easeIn
-            self.baseView.mapView.moveCamera(cameraUpdate)
-
-            if self.infoWindow.marker == marker {
-                self.infoWindow.close()
-            } else {
-                self.infoWindow.open(with: marker)
-            }
+            self.currentCameraMoveContext = .markerTap
+            self.focus(on: marker)
+//            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
+//            cameraUpdate.animation = .easeIn
+//            self.baseView.mapView.moveCamera(cameraUpdate)
+//
+//            if self.infoWindow.marker == marker {
+//                self.infoWindow.close()
+//            } else {
+//                self.infoWindow.open(with: marker)
+//            }
 
             return true
         }
@@ -168,8 +189,8 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         guard now.timeIntervalSince(lastCameraUpdateTime) > 0.8 else { return }
         lastCameraUpdateTime = now
 
-        //(init) 서울 전체 이벤트 필터링 호출
-        fetchFilteredEventsAndUpdateMarkers()
+        //(init) 서울 전체 이벤트 호출
+//        fetchFilteredEventsAndUpdateMarkers()
     }
         
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
@@ -200,6 +221,8 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
             markerDict[id]?.mapView = nil
         }
         markerDict = newMarkers
+        
+        baseView.resultCollectionView.reloadData()
     }
     
     private func createMarker(for event: CulturalEventModel) -> NMFMarker {
@@ -242,6 +265,53 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         cameraUpdate.animation = .easeIn
         baseView.mapView.moveCamera(cameraUpdate)
     }
+    
+    private func focus(on marker: NMFMarker) {
+        print(#function, searchResults)
+        switch currentCameraMoveContext {
+        case .user:
+            print(#function, "user")
+            return // 아무 것도 하지 않음
+
+        case .searchResult:
+            print(#function, "searchResult")
+            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
+            cameraUpdate.animation = .easeIn
+            baseView.mapView.moveCamera(cameraUpdate)
+
+        case .markerTap:
+            print(#function, "markerTap")
+
+            if let event = marker.userInfo["event"] as? CulturalEventModel,
+               let index = searchResults.firstIndex(where: { $0.id == event.id }) {
+                let indexPath = IndexPath(item: index, section: 0)
+                baseView.resultCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            }
+            fallthrough
+
+        case .collectionViewScroll:
+            print(#function, "collectionViewScroll")
+
+            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position, zoomTo: 14)
+            cameraUpdate.animation = .easeIn
+            baseView.mapView.moveCamera(cameraUpdate)
+
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                if self.baseView.mapView.zoomLevel < 14 {
+//                    self.baseView.mapView.zoomLevel = 5
+//                }
+//            }
+
+            if let event = marker.userInfo["event"] as? CulturalEventModel {
+                self.customSource.title = event.title ?? ""
+                self.infoWindow.dataSource = self.customSource
+                self.infoWindow.close()
+                self.infoWindow.open(with: marker)
+            }
+        }
+    }
+    
+    
 }
 
 final class CustomTextViewSource: NSObject, NMFOverlayImageDataSource {
@@ -308,7 +378,7 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
     }
 
     @objc private func filterButtonTapped() {
-        let filterVC = FilterSheetViewController()
+        let filterVC = FilterSheetViewController(currentFilters: currentFilters)
         filterVC.delegate = self
         if let sheet = filterVC.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
@@ -350,15 +420,26 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
     private func hideNoResultsMessage() {
         baseView.emptyResultLabel.isHidden = true
     }
-    
-//    private func showResultList() {
-//        baseView.resultCollectionView.isHidden = false  // ❗ 지우거나 항상 false
-//        baseView.resultCollectionView.alpha = 1.0
-//    }
-//
-//    private func hideResultList() {
-//        baseView.resultCollectionView.alpha = 1.0 // ❗ 여기도 alpha는 유지
-//    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let visibleCenter = CGPoint(
+            x: baseView.resultCollectionView.contentOffset.x + baseView.resultCollectionView.bounds.width / 2,
+            y: baseView.resultCollectionView.bounds.height / 2
+        )
+
+        if let indexPath = baseView.resultCollectionView.indexPathForItem(at: visibleCenter) {
+            let event = searchResults[indexPath.item]
+
+            if let marker = markerDict.values.first(where: {
+                guard let mEvent = $0.userInfo["event"] as? CulturalEventModel else { return false }
+                return mEvent.id == event.id
+            }) {
+                currentCameraMoveContext = .collectionViewScroll
+                focus(on: marker)
+            }
+        }
+    }
+
 }
 
 extension NMGLatLng {

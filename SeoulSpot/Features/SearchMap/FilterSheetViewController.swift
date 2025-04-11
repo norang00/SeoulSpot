@@ -21,6 +21,8 @@ protocol FilterSheetDelegate: AnyObject {
 
 final class FilterSheetViewController: UIViewController {
     
+    private var currentFilters: FilterSelection
+
     var delegate: FilterSheetDelegate?
     
     private let titleLabel = UILabel()
@@ -50,6 +52,15 @@ final class FilterSheetViewController: UIViewController {
     private let audienceLabel = UILabel()
     private let audienceScroll = UIScrollView()
     private let audienceStack = UIStackView()
+    
+    init(currentFilters: FilterSelection) {
+        self.currentFilters = currentFilters
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -142,6 +153,11 @@ final class FilterSheetViewController: UIViewController {
     }
     
     private func setupView() {
+        selectedCategories = Set(currentFilters.categories)
+        selectedDistricts = Set(currentFilters.districts)
+        selectedPrices = Set(currentFilters.prices)
+        selectedAudiences = Set(currentFilters.audiences)
+        
         titleLabel.text = "행사 찾아보기"
         titleLabel.font = .boldSystemFont(ofSize: 18)
 
