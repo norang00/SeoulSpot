@@ -403,10 +403,8 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
 
             if events.isEmpty {
                 showNoResultsMessage()
-//                hideResultList()
             } else {
                 hideNoResultsMessage()
-//                showResultList()
                 baseView.resultCollectionView.reloadData()
                 adjustCameraToFit(events: events)
             }
