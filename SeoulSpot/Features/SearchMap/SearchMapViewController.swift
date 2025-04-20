@@ -121,7 +121,7 @@ extension SearchMapViewController: CLLocationManagerDelegate {
         cameraUpdate.animation = .easeIn
 //        baseView.mapView.zoomLevel = 13.0
         baseView.mapView.moveCamera(cameraUpdate)
-        
+
         fetchEventsAndUpdateMarkers(near: coordinate)
     }
 }
@@ -134,6 +134,15 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         baseView.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         baseView.mapView.touchDelegate = self
         baseView.mapView.addCameraDelegate(delegate: self)
+        baseView.mapView.animationDuration = 0.5 //
+        
+        let seoulLatLngBounds = NMGLatLngBounds(
+            southWestLat: 37.413294, southWestLng: 126.734086, // 서울 남서쪽 끝
+            northEastLat: 37.715133, northEastLng: 127.269311  // 서울 북동쪽 끝
+        )
+        baseView.mapView.extent = seoulLatLngBounds
+        baseView.mapView.minZoomLevel = 10.0  // 너무 넓은 뷰 방지
+        baseView.mapView.maxZoomLevel = 20.0  // 너무 상세한 뷰 방지
     }
     
     private func setupInfoView() {
