@@ -13,29 +13,29 @@ protocol PinnedViewControllerDelegate: AnyObject {
 }
 
 final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel> {
-
+    
     var delegate: PinnedViewControllerDelegate?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationItem.title = "저장한 이벤트📌"
-
+        
         setupTableView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        
         viewModel.fetchPinnedEvents()
     }
-
+    
     override func bindViewModel() {
         viewModel.$isLoading
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showLoading($0) }
             .store(in: &cancellables)
-
+        
         viewModel.errorMessage
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.showError($0) }
@@ -43,7 +43,8 @@ final class PinnedViewController: BaseViewController<PinnedView, PinnedViewModel
         
         viewModel.$pinnedEvents
             .receive(on: RunLoop.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] value in
+                self?.baseView.emptyLabel.isHidden = !value.isEmpty
                 self?.baseView.tableView.reloadData()
             }
             .store(in: &cancellables)
