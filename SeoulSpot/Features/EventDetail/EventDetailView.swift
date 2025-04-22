@@ -49,6 +49,11 @@ final class EventDetailView: BaseView {
 
     private let descriptionTitleLabel = UILabel()
     private let descriptionValueLabel = UILabel()
+    
+    private let feeRow = UIStackView()
+    private let playerRow = UIStackView()
+    private let programRow = UIStackView()
+    private let descriptionRow = UIStackView()
 
     private let linkButton = UIButton(type: .system)
         
@@ -70,10 +75,15 @@ final class EventDetailView: BaseView {
         let dateRow = UIStackView(arrangedSubviews: [dateTitleLabel, dateValueLabel])
         let placeRow = UIStackView(arrangedSubviews: [placeTitleLabel, placeValueLabel])
         let targetRow = UIStackView(arrangedSubviews: [targetTitleLabel, targetValueLabel])
-        let feeRow = UIStackView(arrangedSubviews: [feeTitleLabel, feeValueLabel])
-        let playerRow = UIStackView(arrangedSubviews: [playerTitleLabel, playerValueLabel])
-        let programRow = UIStackView(arrangedSubviews: [programTitleLabel, programValueLabel])
-        let descriptionRow = UIStackView(arrangedSubviews: [descriptionTitleLabel, descriptionValueLabel])
+        
+        feeRow.addArrangedSubview(feeTitleLabel)
+        feeRow.addArrangedSubview(feeValueLabel)
+        playerRow.addArrangedSubview(playerTitleLabel)
+        playerRow.addArrangedSubview(playerValueLabel)
+        programRow.addArrangedSubview(programTitleLabel)
+        programRow.addArrangedSubview(programValueLabel)
+        descriptionRow.addArrangedSubview(descriptionTitleLabel)
+        descriptionRow.addArrangedSubview(descriptionValueLabel)
         
         [categoryRow, dateRow, placeRow, targetRow, feeRow, playerRow, programRow, descriptionRow].forEach {
             $0.axis = .horizontal
@@ -174,10 +184,34 @@ final class EventDetailView: BaseView {
         dateValueLabel.text = event.date.orDash
         placeValueLabel.text = "\(event.guName.orDash) \(event.place.orDash)"
         targetValueLabel.text = event.useTarget ?? "누구나"
-        feeValueLabel.text = event.useFee.orDash
-        playerValueLabel.text = event.player.orDash
-        programValueLabel.text = event.program.orDash
-        descriptionValueLabel.text = event.etcDesc.orDash
+        
+        if let fee = event.useFee, !fee.isEmpty {
+            feeValueLabel.text = fee
+            feeRow.isHidden = false
+        } else {
+            feeRow.isHidden = true
+        }
+        
+        if let player = event.player, !player.isEmpty {
+            playerValueLabel.text = player
+            playerRow.isHidden = false
+        } else {
+            playerRow.isHidden = true
+        }
+        
+        if let program = event.program, !program.isEmpty {
+            programValueLabel.text = program
+            programRow.isHidden = false
+        } else {
+            programRow.isHidden = true
+        }
+        
+        if let desc = event.etcDesc, !desc.isEmpty {
+            descriptionValueLabel.text = desc
+            descriptionRow.isHidden = false
+        } else {
+            descriptionRow.isHidden = true
+        }
 
         if let url = URL(string: event.mainImage ?? "") {
             posterImageView.loadImage(from: url, placeholder: UIImage(named: "placeholder")) { [weak self] image in
