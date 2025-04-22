@@ -17,7 +17,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="mainIcon" translatesAutoresizingMaskIntoConstraints="NO" id="onw-us-aQu">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="WhiteLogo" translatesAutoresizingMaskIntoConstraints="NO" id="onw-us-aQu">
                                 <rect key="frame" x="37" y="314" width="330" height="225"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
@@ -32,7 +32,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="mainIcon" width="1024" height="1024"/>
+        <image name="WhiteLogo" width="1024" height="1024"/>
         <namedColor name="AccentColor">
             <color red="0.16078431372549021" green="0.47058823529411764" blue="0.62745098039215685" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
