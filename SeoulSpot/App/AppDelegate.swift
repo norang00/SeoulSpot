@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 import NMapsMap
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Naver SDK 설정
         NMFAuthManager.shared().ncpKeyId = Naver.clientID
+
+        // Firebase 설정
+        FirebaseApp.configure()
         
         sleep(1)
 
