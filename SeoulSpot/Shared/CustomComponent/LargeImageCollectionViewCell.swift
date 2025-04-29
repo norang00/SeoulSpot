@@ -96,7 +96,7 @@ final class LargeImageCollectionViewCell: UICollectionViewCell {
         categoryBadge.text = event.codeName
         locationBadge.text = event.guName
         isFreeBadge.text = event.isFree
-        isFreeBadge.backgroundColor = (event.isFree == "유료") ? .systemPink : .isFreeBadge
+        isFreeBadge.backgroundColor = (event.isFree == "유료") ? .isPaidBadge : .isFreeBadge
         
         setDateBadge(event)
     }

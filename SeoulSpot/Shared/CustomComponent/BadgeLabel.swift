@@ -25,7 +25,12 @@ enum BadgeStyle {
     }
 
     var textColor: UIColor {
-        return .white
+        switch self {
+        case .location: return .textGray
+        case .theme: return .textGray
+        case .isFree: return .textGray
+        case .date: return .white
+        }
     }
 }
 

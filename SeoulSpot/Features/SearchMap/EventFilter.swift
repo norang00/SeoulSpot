@@ -19,12 +19,7 @@ enum EventCategory: String, CaseIterable {
     case movie = "영화"
     case concert = "콘서트"
     case soloRecital = "독주/독창회"
-    
-    case festivalCultureArt = "축제-문화/예술"
-    case festivalCitizen = "축제-시민화합"
-    case festivalTraditionalHistory = "축제-전통/역사"
-    case festivalEtc = "축제-기타"
-    
+    case festival = "축제"
     case unknown = "기타"
 }
 
@@ -67,26 +62,22 @@ enum PriceType: String, CaseIterable {
 
 // MARK: - 관람 대상 분류
 enum AudienceTarget: String, CaseIterable {
-    case everyone = "누구나"
-    case interested = "관심있는 누구나"
+    case everyone = "관심있는 누구나"
     case students = "학생 대상"
     case children = "어린이/청소년"
     case preschool = "영유아/유아"
     case adultsOnly = "성인 전용"
     case groupOnly = "단체 전용"
-    case specificAge = "기타 연령 조건"
     case unknown = "기타"
 
     var displayName: String {
         switch self {
         case .everyone: return "누구나"
-        case .interested: return "관심 있는 분"
         case .students: return "학생"
         case .children: return "어린이/청소년"
         case .preschool: return "유아/영유아"
         case .adultsOnly: return "성인"
         case .groupOnly: return "단체"
-        case .specificAge: return "연령 조건 있음"
         case .unknown: return "기타"
         }
     }
@@ -96,10 +87,8 @@ enum AudienceTarget: String, CaseIterable {
 extension AudienceTarget {
     static func from(_ text: String) -> AudienceTarget {
         let lowercased = text.lowercased()
-        if lowercased.contains("누구나") || lowercased.contains("전체") {
+        if lowercased.contains("누구나") || lowercased.contains("전체") || lowercased.contains("관심") {
             return .everyone
-        } else if lowercased.contains("관심") {
-            return .interested
         } else if lowercased.contains("청소년") || lowercased.contains("초등") || lowercased.contains("중고등") {
             return .children
         } else if lowercased.contains("단체") {
@@ -108,8 +97,6 @@ extension AudienceTarget {
             return .preschool
         } else if lowercased.contains("성인") {
             return .adultsOnly
-        } else if lowercased.contains("세") {
-            return .specificAge
         } else {
             return .unknown
         }

@@ -137,7 +137,7 @@ final class BasicInfoCollectionViewCell: UICollectionViewCell {
         categoryBadge.text = event.codeName
         locationBadge.text = event.guName
         isFreeBadge.text = event.isFree
-        isFreeBadge.backgroundColor = (event.isFree == "유료") ? .systemPink : .isFreeBadge
+        isFreeBadge.backgroundColor = (event.isFree == "유료") ? .isPaidBadge : .isFreeBadge
         
         titleLabel.text = event.title
         subtitleLabel.text = event.place

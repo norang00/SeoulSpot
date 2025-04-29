@@ -147,7 +147,7 @@ final class FilterSheetViewController: UIViewController {
 
         [categoryLabel, districtLabel, priceLabel, audienceLabel].forEach {
             $0.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(20)
+                make.leading.trailing.equalToSuperview()
             }
         }
     }
@@ -162,7 +162,7 @@ final class FilterSheetViewController: UIViewController {
         titleLabel.font = .boldSystemFont(ofSize: 18)
 
         resetButton.setTitle("초기화", for: .normal)
-        resetButton.setTitleColor(.systemRed, for: .normal)
+        resetButton.setTitleColor(.textGray, for: .normal)
         resetButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
         resetButton.addTarget(self, action: #selector(resetSelections), for: .touchUpInside)
 
@@ -177,13 +177,18 @@ final class FilterSheetViewController: UIViewController {
 
         doneButton.configuration = config
 
-        categoryLabel.text = "카테고리"
-        districtLabel.text = "지역"
-        priceLabel.text = "유/무료"
-        audienceLabel.text = "관람 대상"
+        categoryLabel.text = "     카테고리"
+        districtLabel.text = "     지역"
+        priceLabel.text = "     유/무료"
+        audienceLabel.text = "     관람 대상"
 
         [categoryLabel, districtLabel, priceLabel, audienceLabel].forEach {
+            
             $0.font = .systemFont(ofSize: 16, weight: .medium)
+        }
+
+        [categoryScroll, districtScroll, priceScroll, audienceScroll].forEach {
+            $0.contentInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
 
         EventCategory.allCases.forEach { category in
@@ -199,6 +204,7 @@ final class FilterSheetViewController: UIViewController {
             categoryStack.addArrangedSubview(button)
             updateButtonAppearance(button, selected: selectedCategories.contains(category))
         }
+        
         District.allCases.forEach { district in
             let button = makeFilterButton(title: district.rawValue)
             button.addAction(UIAction { [weak self] _ in
@@ -212,6 +218,7 @@ final class FilterSheetViewController: UIViewController {
             districtStack.addArrangedSubview(button)
             updateButtonAppearance(button, selected: selectedDistricts.contains(district))
         }
+        
         PriceType.allCases.forEach { price in
             let button = makeFilterButton(title: price.rawValue)
             button.addAction(UIAction { [weak self] _ in
@@ -225,6 +232,7 @@ final class FilterSheetViewController: UIViewController {
             priceStack.addArrangedSubview(button)
             updateButtonAppearance(button, selected: selectedPrices.contains(price))
         }
+        
         AudienceTarget.allCases.forEach { target in
             let button = makeFilterButton(title: target.displayName)
             button.addAction(UIAction { [weak self] _ in
@@ -266,9 +274,13 @@ final class FilterSheetViewController: UIViewController {
     private func updateButtonAppearance(_ button: UIButton, selected: Bool) {
         guard var config = button.configuration else { return }
         if selected {
-            config.baseBackgroundColor = .accent
-            config.baseForegroundColor = .white
+            config.background.strokeColor = .accent
+            config.background.strokeWidth = 2
+            config.baseBackgroundColor = .systemGray6
+            config.baseForegroundColor = .label
         } else {
+            config.background.strokeColor = .systemGray6
+            config.background.strokeWidth = 2
             config.baseBackgroundColor = .systemGray6
             config.baseForegroundColor = .label
         }
