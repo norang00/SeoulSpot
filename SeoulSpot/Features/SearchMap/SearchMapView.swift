@@ -7,6 +7,7 @@
 
 import UIKit
 import NMapsMap
+import Toast
 
 class SearchMapView: BaseView {
     
@@ -16,14 +17,12 @@ class SearchMapView: BaseView {
 
     lazy var resultCollectionView = UICollectionView(frame: .zero,
                                                      collectionViewLayout: setupLayout())
-    let emptyResultLabel = UILabel()
     
     override func setupHierarchy() {
         addSubview(mapView)
         addSubview(filterButton)
         addSubview(currentLocationButton)
         addSubview(resultCollectionView)
-        addSubview(emptyResultLabel)
     }
         
     override func setupLayout() {
@@ -34,26 +33,22 @@ class SearchMapView: BaseView {
             $0.height.equalToSuperview().multipliedBy(0.2)
         }
 
-        emptyResultLabel.snp.makeConstraints {
-            $0.center.equalTo(resultCollectionView)
-        }
-        
-        currentLocationButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(16)
-            $0.bottom.equalTo(resultCollectionView.snp.top).offset(-12)
-            $0.size.equalTo(40)
-        }
-
         filterButton.snp.makeConstraints {
             $0.top.equalToSuperview().inset(60)
             $0.trailing.equalToSuperview().inset(16)
+            $0.size.equalTo(40)
+        }
+
+        currentLocationButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(16)
+            $0.top.equalTo(filterButton.snp.bottom).offset(12)
             $0.size.equalTo(40)
         }
     }
 
     override func setupView() {
         isUserInteractionEnabled = true
-        backgroundColor = .white
+        backgroundColor = .clear
         
         filterButton.layer.cornerRadius = 20
         filterButton.backgroundColor = .white
@@ -75,17 +70,12 @@ class SearchMapView: BaseView {
         currentLocationButton.layer.shadowOffset = CGSize(width: 0, height: 2)
         currentLocationButton.layer.shadowRadius = 4
 
+        resultCollectionView.isHidden = true
         resultCollectionView.isPagingEnabled = true
         resultCollectionView.showsHorizontalScrollIndicator = false
-        resultCollectionView.backgroundColor = .white
+        resultCollectionView.backgroundColor = .clear
         resultCollectionView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         resultCollectionView.clipsToBounds = true
-
-        emptyResultLabel.text = "검색 결과가 없습니다."
-        emptyResultLabel.textColor = .gray
-        emptyResultLabel.font = .systemFont(ofSize: 14)
-        emptyResultLabel.textAlignment = .center
-        emptyResultLabel.isHidden = true
     }
     
     private func setupLayout() -> UICollectionViewFlowLayout {

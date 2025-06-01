@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import CoreData
+import Toast
 
 final class EventDetailView: BaseView {
 
@@ -172,9 +173,9 @@ final class EventDetailView: BaseView {
         placeTitleLabel.text = "장소"
         targetTitleLabel.text = "대상"
         feeTitleLabel.text = "요금"
-        playerTitleLabel.text = "시행" // [TODO] 워딩 고민..
-        programTitleLabel.text = "프로그램" // [TODO] 워딩 고민..
-        descriptionTitleLabel.text = "부가 설명" // [TODO] 워딩 고민..
+        playerTitleLabel.text = "시행"
+        programTitleLabel.text = "프로그램"
+        descriptionTitleLabel.text = "부가 설명"
         linkButton.setTitle("공식 홈페이지 바로가기", for: .normal)
     }
 
@@ -226,7 +227,7 @@ final class EventDetailView: BaseView {
             }
         }
 
-        if let link = event.orgLink, let url = URL(string: link) { // [TODO] WebView 로 전환
+        if let link = event.orgLink, let url = URL(string: link) {
             linkButton.addAction(UIAction(handler: { _ in
                 UIApplication.shared.open(url)
             }), for: .touchUpInside)
@@ -235,6 +236,15 @@ final class EventDetailView: BaseView {
         }
         
         updatePinState(isPinned: isPinned)
+        
+        // 날짜 지난 경우 회색 처리
+        let isEnded = event.isEnded
+        if isEnded {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.makeToast("종료된 이벤트입니다", duration: 2.0, position: .center)
+            }
+        }
+        contentView.alpha = isEnded ? 0.5 : 1.0
     }
 
     @objc private func pinTapped() {

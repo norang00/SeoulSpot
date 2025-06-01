@@ -47,5 +47,5 @@ final class SearchMapViewModel: BaseViewModel {
         }
         completion(filteredEvents)
     }
-    
+
 }

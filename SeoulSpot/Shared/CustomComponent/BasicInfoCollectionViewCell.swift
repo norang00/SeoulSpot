@@ -85,13 +85,13 @@ final class BasicInfoCollectionViewCell: UICollectionViewCell {
         
         locationBadge.snp.makeConstraints {
             $0.top.equalTo(borderView).inset(12)
-            $0.leading.equalTo(categoryBadge.snp.trailing).offset(6)
+            $0.leading.equalTo(categoryBadge.snp.trailing).offset(4)
             $0.height.equalTo(20)
         }
         
         isFreeBadge.snp.makeConstraints {
             $0.top.equalTo(borderView).inset(12)
-            $0.leading.equalTo(locationBadge.snp.trailing).offset(6)
+            $0.leading.equalTo(locationBadge.snp.trailing).offset(4)
             $0.height.equalTo(20)
         }
         
@@ -149,8 +149,15 @@ final class BasicInfoCollectionViewCell: UICollectionViewCell {
         
         // 날짜 지난 경우 회색 처리
         let isEnded = event.isEnded
-        contentView.alpha = isEnded ? 0.5 : 1.0
+        
+        thumbnailImageView.alpha = isEnded ? 0.5 : 1.0
+        categoryBadge.alpha = isEnded ? 0.5 : 1.0
+        locationBadge.alpha = isEnded ? 0.5 : 1.0
+        isFreeBadge.alpha = isEnded ? 0.5 : 1.0
+        
         titleLabel.textColor = isEnded ? .lightGray : .label
         subtitleLabel.textColor = isEnded ? .gray : .secondaryLabel
+        dateLabel.textColor = isEnded ? .gray : .secondaryLabel
+        dateLabel.text! += isEnded ? " (종료)" : ""
     }
 }

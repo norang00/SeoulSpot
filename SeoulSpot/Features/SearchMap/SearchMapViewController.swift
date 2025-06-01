@@ -41,7 +41,7 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
     }
 
     private var currentCameraMoveContext: CameraMoveContext = .user
-    
+    private var currentUserCoordinate: CLLocationCoordinate2D?
     private var currentFilters = FilterSelection(categories: [], districts: [], prices: [], audiences: [])
     private var searchResults: [CulturalEventModel] = []
     
@@ -121,7 +121,7 @@ extension SearchMapViewController: CLLocationManagerDelegate {
         cameraUpdate.animation = .easeIn
 //        baseView.mapView.zoomLevel = 13.0
         baseView.mapView.moveCamera(cameraUpdate)
-
+        currentUserCoordinate = coordinate
         fetchEventsAndUpdateMarkers(near: coordinate)
     }
 }
@@ -175,10 +175,10 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
                 return false
             }
 
-            self.customSource.title = event.title ?? ""
-            self.infoWindow.dataSource = self.customSource
-            self.currentCameraMoveContext = .markerTap
-            self.focus(on: marker)
+            customSource.title = event.title ?? ""
+            infoWindow.dataSource = self.customSource
+            currentCameraMoveContext = .markerTap
+            focus(on: marker)
 //            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
 //            cameraUpdate.animation = .easeIn
 //            self.baseView.mapView.moveCamera(cameraUpdate)
@@ -203,12 +203,17 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
     }
         
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
+        baseView.resultCollectionView.isHidden = true
         infoWindow.close()
     }
     
     private func fetchEventsAndUpdateMarkers(near coordinate: CLLocationCoordinate2D) {
         viewModel.fetchNearByEvents(near: coordinate) { [weak self] events in
             guard let self = self else { return }
+
+            self.searchResults = events
+            self.sortSearchResultsByDistance()
+            
             self.updateEventMarkers(with: events)
         }
     }
@@ -280,16 +285,24 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         switch currentCameraMoveContext {
         case .user:
             print(#function, "user")
+            
+            baseView.resultCollectionView.isHidden = true
+
             return // 아무 것도 하지 않음
 
         case .searchResult:
             print(#function, "searchResult")
+            
+            baseView.resultCollectionView.isHidden = true
+
             let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
             cameraUpdate.animation = .easeIn
             baseView.mapView.moveCamera(cameraUpdate)
 
         case .markerTap:
             print(#function, "markerTap")
+
+            baseView.resultCollectionView.isHidden = true
 
             if let event = marker.userInfo["event"] as? CulturalEventModel,
                let index = searchResults.firstIndex(where: { $0.id == event.id }) {
@@ -301,15 +314,11 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
         case .collectionViewScroll:
             print(#function, "collectionViewScroll")
 
+            baseView.resultCollectionView.isHidden = false
+
             let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position, zoomTo: 14)
             cameraUpdate.animation = .easeIn
             baseView.mapView.moveCamera(cameraUpdate)
-
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                if self.baseView.mapView.zoomLevel < 14 {
-//                    self.baseView.mapView.zoomLevel = 5
-//                }
-//            }
 
             if let event = marker.userInfo["event"] as? CulturalEventModel {
                 self.customSource.title = event.title ?? ""
@@ -407,13 +416,12 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
             guard let self = self else { return }
             
             self.searchResults = events
-            self.baseView.resultCollectionView.reloadData()
+            self.sortSearchResultsByDistance()
             self.updateEventMarkers(with: events)
 
             if events.isEmpty {
                 showNoResultsMessage()
             } else {
-                hideNoResultsMessage()
                 baseView.resultCollectionView.reloadData()
                 adjustCameraToFit(events: events)
             }
@@ -421,13 +429,10 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
     }
     
     private func showNoResultsMessage() {
-        baseView.emptyResultLabel.isHidden = false
+        baseView.makeToast("검색 결과가 없습니다.", duration: 2.0, position: .bottom)
+        baseView.resultCollectionView.isHidden = true
     }
-
-    private func hideNoResultsMessage() {
-        baseView.emptyResultLabel.isHidden = true
-    }
-
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let visibleCenter = CGPoint(
             x: baseView.resultCollectionView.contentOffset.x + baseView.resultCollectionView.bounds.width / 2,
@@ -448,6 +453,26 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
     }
 
 }
+
+// MARK: - CollectionView
+extension SearchMapViewController {
+    private func sortSearchResultsByDistance() {
+        guard let currentLocation = currentUserCoordinate else { return }
+
+        let currentCLLocation = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+
+        searchResults.sort {
+            guard let lat1 = $0.lat, let lon1 = $0.lot,
+                  let lat2 = $1.lat, let lon2 = $1.lot else { return false }
+
+            let distance1 = currentCLLocation.distance(from: CLLocation(latitude: lat1, longitude: lon1))
+            let distance2 = currentCLLocation.distance(from: CLLocation(latitude: lat2, longitude: lon2))
+
+            return distance1 < distance2
+        }
+    }
+}
+
 
 extension NMGLatLng {
     func toCLLocationCoordinate2D() -> CLLocationCoordinate2D {

@@ -10,6 +10,7 @@
 		EE15ACB42D9A770100D2A1B9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = EE15ACB32D9A770100D2A1B9 /* .gitignore */; };
 		EE15ACFD2D9AB73B00D2A1B9 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = EE15ACFC2D9AB73B00D2A1B9 /* SnapKit */; };
 		EE99721D2D9D0F940082C0DB /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = EE99721C2D9D0F940082C0DB /* NMapsMap */; };
+		EEFC852B2DEC2F3500EF1EAE /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = EEFC852A2DEC2F3500EF1EAE /* Toast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEFC852B2DEC2F3500EF1EAE /* Toast in Frameworks */,
 				EE15ACFD2D9AB73B00D2A1B9 /* SnapKit in Frameworks */,
 				EE99721D2D9D0F940082C0DB /* NMapsMap in Frameworks */,
 			);
@@ -90,6 +92,7 @@
 			packageProductDependencies = (
 				EE15ACFC2D9AB73B00D2A1B9 /* SnapKit */,
 				EE99721C2D9D0F940082C0DB /* NMapsMap */,
+				EEFC852A2DEC2F3500EF1EAE /* Toast */,
 			);
 			productName = SeoulSpot;
 			productReference = EE15AC162D9A745100D2A1B9 /* SeoulSpot.app */;
@@ -122,6 +125,7 @@
 			packageReferences = (
 				EE15ACFB2D9AB73B00D2A1B9 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				EE99721B2D9D0F940082C0DB /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
+				EEFC85292DEC2F3500EF1EAE /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EE15AC172D9A745100D2A1B9 /* Products */;
@@ -170,12 +174,12 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.norang.SeoulSpot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -203,12 +207,12 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.norang.SeoulSpot;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -380,6 +384,14 @@
 				minimumVersion = 3.21.0;
 			};
 		};
+		EEFC85292DEC2F3500EF1EAE /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scalessec/Toast-Swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -392,6 +404,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EE99721B2D9D0F940082C0DB /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		EEFC852A2DEC2F3500EF1EAE /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EEFC85292DEC2F3500EF1EAE /* XCRemoteSwiftPackageReference "Toast-Swift" */;
+			productName = Toast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
