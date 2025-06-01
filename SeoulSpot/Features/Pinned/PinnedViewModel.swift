@@ -20,4 +20,9 @@ final class PinnedViewModel: BaseViewModel {
     func fetchPinnedEvents() {
         pinnedEvents = CoreDataManager.shared.fetchPinnedEvents()
     }
+    
+    func removePinnedEvent(_ event: CulturalEventModel) {
+        CoreDataManager.shared.unpinEvent(event)
+        fetchPinnedEvents()
+    }
 }

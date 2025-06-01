@@ -18,8 +18,10 @@ final class EventDetailViewModel: BaseViewModel {
         checkPinnedStatus()
     }
     
-    func checkPinnedStatus() {
+    @discardableResult
+    func checkPinnedStatus() -> Bool{
         isPinned = CoreDataManager.shared.isEventPinned(event)
+        return isPinned
     }
     
     func togglePin() {

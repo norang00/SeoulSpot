@@ -17,6 +17,11 @@ final class EventDetailViewController: BaseViewController<EventDetailView, Event
         baseView.configure(with: viewModel.event, viewModel.isPinned)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        baseView.updatePinState(isPinned: viewModel.checkPinnedStatus())
+    }
+    
     override func bindViewModel() {
         viewModel.$isLoading
             .receive(on: DispatchQueue.main)

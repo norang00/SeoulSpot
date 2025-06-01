@@ -76,4 +76,17 @@ extension PinnedViewController: UITableViewDelegate, UITableViewDataSource {
         delegate?.didSelectEvent(selectedEvent)
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let event = viewModel.pinnedEvents[indexPath.row]
+            let alert = UIAlertController(title: "삭제 확인", message: "저장한 이벤트를 삭제하시겠습니까?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: "삭제", style: .destructive, handler: { [weak self] _ in
+                self?.viewModel.removePinnedEvent(event)
+                tableView.deleteRows(at: [indexPath], with: .left)
+            }))
+            present(alert, animated: false, completion: nil)
+        }
+    }
 }
