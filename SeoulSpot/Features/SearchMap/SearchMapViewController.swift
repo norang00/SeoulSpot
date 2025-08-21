@@ -15,45 +15,56 @@ protocol SearchMapViewControllerDelegate: AnyObject {
 
 final class SearchMapViewController: BaseViewController<SearchMapView, SearchMapViewModel> {
 
+    // MARK: - Delegate
     var delegate: SearchMapViewControllerDelegate?
     
-    private var initialLocationSet = false
-    private let locationManager = CLLocationManager()
-    
-    private let infoWindow = NMFInfoWindow()
-    private var markerDict: [String: NMFMarker] = [:] {
-        didSet {
-            self.searchResults = markerDict.values.compactMap {
-                $0.userInfo["event"] as? CulturalEventModel
-            }
-            baseView.resultCollectionView.reloadData()
-        }
-    }
-    private let customSource = CustomTextViewSource()
-    
-    private var lastCameraUpdateTime = Date()
-    
+    // MARK: - Enum
     private enum CameraMoveContext {
-        case user
+        case userLocation
         case searchResult
         case markerTap
         case collectionViewScroll
     }
 
-    private var currentCameraMoveContext: CameraMoveContext = .user
+    // MARK: - Location Properties
+    private let locationManager = CLLocationManager()
+    private var initialLocationSet = false
     private var currentUserCoordinate: CLLocationCoordinate2D?
+
+    // MARK: - Smart Navigation Properties
+    private var visitedEventIds: Set<String> = []
+    private var currentEventIndex: Int = 0
+    private var hasInitialSort: Bool = false
+
+    // MARK: - Map Properties
+    private let infoWindow = NMFInfoWindow()
+    private var markerDict: [String: NMFMarker] = [:]
+    private let customSource = CustomTextViewSource()
+    private var currentCameraMoveContext: CameraMoveContext = .userLocation
+    private var lastCameraUpdateTime = Date()
+    
+    // MARK: - Data Properties
     private var currentFilters = FilterSelection(categories: [], districts: [], prices: [], audiences: [])
     private var searchResults: [CulturalEventModel] = []
     
+    // MARK: - Constants
+    private struct Constants {
+        static let seoulBounds = NMGLatLngBounds(
+            southWestLat: 37.413294, southWestLng: 126.734086,
+            northEastLat: 37.715133, northEastLng: 127.269311
+        )
+        static let defaultZoomLevel: Double = 13.0
+        static let detailZoomLevel: Double = 14.0
+        static let minZoomLevel: Double = 10.0
+        static let maxZoomLevel: Double = 20.0
+        static let cameraIdleThreshold: TimeInterval = 2.0
+        static let markerColor = UIColor(red: 41/255, green: 120/255, blue: 160/255, alpha: 1.0)
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
-        print(#function)
         super.viewDidLoad()
-        requestLocationAccess()
-        
-        setupMapView()
-        setupInfoView()
-        setupResultList()
-        addTargetToButton()
+        setupViewController()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -64,6 +75,20 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
+    // MARK: - Setup
+    private func setupViewController() {
+        requestLocationAccess()
+        setupMapView()
+        setupInfoView()
+        setupResultList()
+        setupButtons()
+    }
+    
+    private func setupButtons() {
+        baseView.currentLocationButton.addTarget(self, action: #selector(currentLocationButtonTapped), for: .touchUpInside)
+        baseView.filterButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
     }
     
     override func bindViewModel() {
@@ -77,15 +102,9 @@ final class SearchMapViewController: BaseViewController<SearchMapView, SearchMap
             .sink { [weak self] in self?.showError($0) }
             .store(in: &cancellables)
     }
-    
-    private func addTargetToButton() {
-        baseView.currentLocationButton.addTarget(self, action: #selector(currentLocationButtonTapped), for: .touchUpInside)
-        baseView.filterButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
-    }
 }
 
-// MARK: - CoreLocation
-
+// MARK: - Location Management
 extension SearchMapViewController: CLLocationManagerDelegate {
     
     private func requestLocationAccess() {
@@ -97,10 +116,10 @@ extension SearchMapViewController: CLLocationManagerDelegate {
     @objc private func currentLocationButtonTapped() {
         guard let currentLocation = locationManager.location else { return }
         focusOnCurrentLocation(currentLocation.coordinate)
+        resetNavigationState()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print(#function)
         guard !initialLocationSet, let location = locations.last else { return }
         initialLocationSet = true
         focusOnCurrentLocation(location.coordinate)
@@ -108,45 +127,55 @@ extension SearchMapViewController: CLLocationManagerDelegate {
     }
     
     private func focusOnCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
-        print(#function)
-        let lat = coordinate.latitude
-        let lng = coordinate.longitude
-        let currentLatLng = NMGLatLng(lat: lat, lng: lng)
+        let currentLatLng = NMGLatLng(lat: coordinate.latitude, lng: coordinate.longitude)
         
         let overlay = baseView.mapView.locationOverlay
         overlay.location = currentLatLng
         overlay.hidden = false
         
-        let cameraUpdate = NMFCameraUpdate(scrollTo: currentLatLng, zoomTo: 13)
+        let cameraUpdate = NMFCameraUpdate(scrollTo: currentLatLng, zoomTo: Constants.detailZoomLevel)
         cameraUpdate.animation = .easeIn
-//        baseView.mapView.zoomLevel = 13.0
         baseView.mapView.moveCamera(cameraUpdate)
+
         currentUserCoordinate = coordinate
         fetchEventsAndUpdateMarkers(near: coordinate)
     }
+    
+    private func resetNavigationState() {
+        hasInitialSort = false
+        currentEventIndex = 0
+        visitedEventIds.removeAll()
+    }
 }
 
-// MARK: - MapView
+// MARK: - Map Setup & Interaction
 extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDelegate {
     
     private func setupMapView() {
-        print(#function)
         baseView.mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         baseView.mapView.touchDelegate = self
         baseView.mapView.addCameraDelegate(delegate: self)
-        baseView.mapView.animationDuration = 0.5 //
-        
-        let seoulLatLngBounds = NMGLatLngBounds(
-            southWestLat: 37.413294, southWestLng: 126.734086, // 서울 남서쪽 끝
-            northEastLat: 37.715133, northEastLng: 127.269311  // 서울 북동쪽 끝
-        )
-        baseView.mapView.extent = seoulLatLngBounds
-        baseView.mapView.minZoomLevel = 10.0  // 너무 넓은 뷰 방지
-        baseView.mapView.maxZoomLevel = 20.0  // 너무 상세한 뷰 방지
+        baseView.mapView.animationDuration = 0.5
+        baseView.mapView.extent = Constants.seoulBounds
+        baseView.mapView.minZoomLevel = Constants.minZoomLevel
+        baseView.mapView.maxZoomLevel = Constants.maxZoomLevel
     }
     
     private func setupInfoView() {
         infoWindow.touchHandler = makeInfoWindowTouchHandler()
+    }
+    
+    func mapViewCameraIdle(_ mapView: NMFMapView) {
+        let now = Date()
+        guard now.timeIntervalSince(lastCameraUpdateTime) > 2.0 else { return }
+        lastCameraUpdateTime = now
+        
+        if !searchResults.isEmpty {
+            sortSearchResultsByDistance()
+            DispatchQueue.main.async { [weak self] in
+                self?.baseView.resultCollectionView.reloadData()
+            }
+        }
     }
     
     private func connectHandler(_ marker: NMFMarker) {
@@ -161,63 +190,100 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
                   let event = marker.userInfo["event"] as? CulturalEventModel else {
                 return false
             }
-
+            
             self.delegate?.didSelectEvent(event)
             return true
         }
     }
     
     private func makeMarkerTouchHandler(for marker: NMFMarker) -> ((NMFOverlay) -> Bool) {
-        print(#function)
         return { [weak self] overlay in
             guard let self = self, let marker = overlay as? NMFMarker,
                   let event = marker.userInfo["event"] as? CulturalEventModel else {
                 return false
             }
-
             customSource.title = event.title ?? ""
             infoWindow.dataSource = self.customSource
             currentCameraMoveContext = .markerTap
             focus(on: marker)
-//            let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
-//            cameraUpdate.animation = .easeIn
-//            self.baseView.mapView.moveCamera(cameraUpdate)
-//
-//            if self.infoWindow.marker == marker {
-//                self.infoWindow.close()
-//            } else {
-//                self.infoWindow.open(with: marker)
-//            }
-
             return true
         }
     }
     
-    func mapViewCameraIdle(_ mapView: NMFMapView) {
-        let now = Date()
-        guard now.timeIntervalSince(lastCameraUpdateTime) > 0.8 else { return }
-        lastCameraUpdateTime = now
-
-        //(init) 서울 전체 이벤트 호출
-//        fetchFilteredEventsAndUpdateMarkers()
-    }
-        
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
         baseView.resultCollectionView.isHidden = true
         infoWindow.close()
     }
+}
+
+//MARK: - Event Data Management
+extension SearchMapViewController {
     
     private func fetchEventsAndUpdateMarkers(near coordinate: CLLocationCoordinate2D) {
         viewModel.fetchNearByEvents(near: coordinate) { [weak self] events in
             guard let self = self else { return }
-
-            self.searchResults = events
-            self.sortSearchResultsByDistance()
             
-            self.updateEventMarkers(with: events)
+            let activeEvents = self.filterActiveEvents(events)
+            self.searchResults = activeEvents
+            
+            if !self.hasInitialSort {
+                self.performInitialSort()
+            }
+            
+            self.updateEventMarkers(with: self.searchResults)
+            self.reloadCollectionView()
         }
     }
     
+    private func reloadCollectionView() {
+        DispatchQueue.main.async { [weak self] in
+            self?.baseView.resultCollectionView.reloadData()
+        }
+    }
+    
+    private func performInitialSort() {
+        sortSearchResultsByDistance()
+        hasInitialSort = true
+        currentEventIndex = 0
+        visitedEventIds.removeAll()
+    }
+    
+    private func filterActiveEvents(_ events: [CulturalEventModel]) -> [CulturalEventModel] {
+        let activeEvents = events.filter { !$0.isEnded }
+        let filteredCount = events.count - activeEvents.count
+        
+        if filteredCount > 0 {
+            print("종료된 이벤트 \(filteredCount)개가 필터링 되었습니다.")
+        }
+        
+        return activeEvents
+    }
+    
+    private func sortSearchResultsByDistance() {
+        guard let currentLocation = currentUserCoordinate else {
+            print("cannot find current location coordinate")
+            return
+        }
+        
+        let currentCLLocation = CLLocation(latitude: currentLocation.latitude,
+                                           longitude: currentLocation.longitude)
+        
+        searchResults.sort {
+            guard let lat1 = $0.lat, let lon1 = $0.lot,
+                  let lat2 = $1.lat, let lon2 = $1.lot else { return false }
+            
+            let distance1 = currentCLLocation.distance(from: CLLocation(latitude: lat1, longitude: lon1))
+            let distance2 = currentCLLocation.distance(from: CLLocation(latitude: lat2, longitude: lon2))
+            
+            return distance1 < distance2
+        }
+        print("sorted search results by distance from current location")
+    }
+}
+
+//MARKER: - Marker Management
+extension SearchMapViewController {
+        
     private func updateEventMarkers(with events: [CulturalEventModel]) {
         var newMarkers: [String: NMFMarker] = [:]
         
@@ -235,8 +301,6 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
             markerDict[id]?.mapView = nil
         }
         markerDict = newMarkers
-        
-        baseView.resultCollectionView.reloadData()
     }
     
     private func createMarker(for event: CulturalEventModel) -> NMFMarker {
@@ -281,29 +345,19 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
     }
     
     private func focus(on marker: NMFMarker) {
-        print(#function, searchResults)
         switch currentCameraMoveContext {
-        case .user:
-            print(#function, "user")
-            
+        case .userLocation:
             baseView.resultCollectionView.isHidden = true
-
-            return // 아무 것도 하지 않음
+            return
 
         case .searchResult:
-            print(#function, "searchResult")
-            
             baseView.resultCollectionView.isHidden = true
-
             let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position)
             cameraUpdate.animation = .easeIn
             baseView.mapView.moveCamera(cameraUpdate)
 
         case .markerTap:
-            print(#function, "markerTap")
-
             baseView.resultCollectionView.isHidden = true
-
             if let event = marker.userInfo["event"] as? CulturalEventModel,
                let index = searchResults.firstIndex(where: { $0.id == event.id }) {
                 let indexPath = IndexPath(item: index, section: 0)
@@ -312,14 +366,11 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
             fallthrough
 
         case .collectionViewScroll:
-            print(#function, "collectionViewScroll")
-
             baseView.resultCollectionView.isHidden = false
-
             let cameraUpdate = NMFCameraUpdate(scrollTo: marker.position, zoomTo: 14)
             cameraUpdate.animation = .easeIn
             baseView.mapView.moveCamera(cameraUpdate)
-
+ 
             if let event = marker.userInfo["event"] as? CulturalEventModel {
                 self.customSource.title = event.title ?? ""
                 self.infoWindow.dataSource = self.customSource
@@ -328,8 +379,6 @@ extension SearchMapViewController: NMFMapViewTouchDelegate, NMFMapViewCameraDele
             }
         }
     }
-    
-    
 }
 
 final class CustomTextViewSource: NSObject, NMFOverlayImageDataSource {
@@ -411,19 +460,27 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
         fetchFilteredEventsAndUpdateMarkers()
     }
     
+   
+    
     func fetchFilteredEventsAndUpdateMarkers() {
         viewModel.fetchFilteredEvents(filters: currentFilters) { [weak self] events in
             guard let self = self else { return }
             
-            self.searchResults = events
-            self.sortSearchResultsByDistance()
-            self.updateEventMarkers(with: events)
-
-            if events.isEmpty {
-                showNoResultsMessage()
-            } else {
-                baseView.resultCollectionView.reloadData()
-                adjustCameraToFit(events: events)
+            let activeEvents = self.filterActiveEvents(events)
+            self.searchResults = activeEvents
+            
+            self.visitedEventIds.removeAll()
+            self.currentEventIndex = 0
+            
+            self.updateEventMarkers(with: self.searchResults)
+            
+            DispatchQueue.main.async {
+                if self.searchResults.isEmpty {
+                    self.showNoResultsMessage()
+                } else {
+                    self.baseView.resultCollectionView.reloadData()
+                    self.adjustCameraToFit(events: self.searchResults)
+                }
             }
         }
     }
@@ -440,39 +497,78 @@ extension SearchMapViewController: FilterSheetDelegate, UICollectionViewDelegate
         )
 
         if let indexPath = baseView.resultCollectionView.indexPathForItem(at: visibleCenter) {
-            let event = searchResults[indexPath.item]
-
+            currentEventIndex = indexPath.item
+            
+            let currentEvent = searchResults[indexPath.item]
+            visitedEventIds.insert(currentEvent.id)
+            
+            if let nextIndex = findNextUnvisitedEvent(from: currentEventIndex) {
+                let nextEvent = searchResults[nextIndex]
+                print("next event \(nextEvent.title ?? "")")
+            }
+                        
             if let marker = markerDict.values.first(where: {
                 guard let mEvent = $0.userInfo["event"] as? CulturalEventModel else { return false }
-                return mEvent.id == event.id
+                return mEvent.id == currentEvent.id
             }) {
                 currentCameraMoveContext = .collectionViewScroll
                 focus(on: marker)
             }
         }
     }
-
 }
 
 // MARK: - CollectionView
 extension SearchMapViewController {
-    private func sortSearchResultsByDistance() {
-        guard let currentLocation = currentUserCoordinate else { return }
-
-        let currentCLLocation = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-
-        searchResults.sort {
-            guard let lat1 = $0.lat, let lon1 = $0.lot,
-                  let lat2 = $1.lat, let lon2 = $1.lot else { return false }
-
-            let distance1 = currentCLLocation.distance(from: CLLocation(latitude: lat1, longitude: lon1))
-            let distance2 = currentCLLocation.distance(from: CLLocation(latitude: lat2, longitude: lon2))
-
-            return distance1 < distance2
+   
+    
+    private func findNextUnvisitedEvent(from currentIndex: Int) -> Int? {
+        let currentEvent = searchResults[currentIndex]
+        guard let currentLat = currentEvent.lat, let currentLot = currentEvent.lot else {
+            // 현재 이벤트 위치 정보가 없으면 순차적으로 다음 이벤트
+            return findNextUnvisitedEvent(from: currentIndex)
         }
+        
+        let currentLocation = CLLocation(latitude: currentLat, longitude: currentLot)
+        
+        var nearestIndex: Int?
+        var nearestDistance: Double = Double.infinity
+        
+        for (index, event) in searchResults.enumerated() {
+            // 현재 이벤트와 이미 확인한 이벤트는 스킵
+            if index == currentIndex || visitedEventIds.contains(event.id) {
+                continue
+            }
+            
+            guard let lat = event.lat, let lot = event.lot else { continue }
+            let eventLocation = CLLocation(latitude: lat, longitude: lot)
+            let distance = currentLocation.distance(from: eventLocation)
+            
+            if distance < nearestDistance {
+                nearestDistance = distance
+                nearestIndex = index
+            }
+        }
+        return nearestIndex ?? findNextSequentialEvent(from: currentIndex)
+    }
+    
+    private func findNextSequentialEvent(from currentIndex: Int) -> Int? {
+        let totalCount = searchResults.count
+        
+        for i in 1..<totalCount {
+            let nextIndex = (currentIndex + i) % totalCount
+            let nextEvent = searchResults[nextIndex]
+            
+            if !visitedEventIds.contains(nextEvent.id) {
+                return nextIndex
+            }
+        }
+        
+        // 모든 이벤트를 다 봤으면 방문 기록을 초기화 하고 다음 이벤트로
+        visitedEventIds.removeAll()
+        return (currentIndex + 1) % totalCount
     }
 }
-
 
 extension NMGLatLng {
     func toCLLocationCoordinate2D() -> CLLocationCoordinate2D {
